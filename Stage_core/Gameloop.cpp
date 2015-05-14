@@ -50,16 +50,12 @@ namespace stage {
 			doneCatcher.Pop(ad, sender);
 			std::cout << "render finish\n";
 			gc->getRawController()->draw(*activeCam);
-			/*fw.Send(CameraComponent::DrawCamera(1), recAddress, activeCamera);
-			while (doneCatcher.Empty()){
-				receiver.Wait();
-			}
-			doneCatcher.Pop(ad, sender);*/
 
 			//Maintenance phase
 			std::cout << "maintenance phase\n";
 
 			if (!abortCatcher.Empty()) abort = true;
+			if (gc->shouldClose()) abort = true;
 		}
 		shutdown();
 	}

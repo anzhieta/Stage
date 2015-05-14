@@ -23,7 +23,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stage_scene", "Stage_scene\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stage_event", "Stage_event\Stage_event.vcxproj", "{AD2C2CB1-5252-4441-994D-0077A4B8ACA7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stage_common_graphics", "..\Stage_control\Stage_common_graphics\Stage_common_graphics.vcxproj", "{24F350DC-6498-4DC6-9248-37B3EAAB63E9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stage_common_graphics", "..\Stage_common\Stage_common_graphics\Stage_common_graphics.vcxproj", "{24F350DC-6498-4DC6-9248-37B3EAAB63E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -42,13 +42,21 @@ namespace stage {
 			RegisterHandler(this, &GraphicsControlActor::draw);
 			
 		}
+		~GraphicsControlActor(){
+			if (globalController == this->GetAddress()) globalController = Theron::Address::Null();
+		}
+
 		stage_common::GraphicsController* getRawController() {
 			return &gc;
 		}
+
+		bool shouldClose(){ return gc.stopLoop; }
+
 		static Theron::Address getGlobalController(){ return globalController; }
 	private:
 		static Theron::Address globalController;
 		stage_common::GraphicsController gc;
+
 		void queue(const Queue& msg, Theron::Address sender){
 			gc.queue(msg.model, msg.position);
 			Send(AllDone(msg.id), sender);

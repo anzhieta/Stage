@@ -40,7 +40,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_control\Stage_common_graphics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_scene;D:\theron\2013\Theron-6.00.02\Include;$(IncludePath)</IncludePath>
+    <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_graphics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_scene;D:\theron\2013\Theron-6.00.02\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -85,6 +85,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="Gameloop.cpp" />
     <ClCompile Include="GraphicsControlActor.cpp" />
     <ClCompile Include="stdafx.cpp">

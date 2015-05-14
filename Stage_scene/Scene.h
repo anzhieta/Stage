@@ -21,6 +21,7 @@ namespace stage {
 			NewObject(){}
 			Theron::Address object;
 		};
+		~Scene();
 	private:
 		Scene(Theron::Framework &fw, int id) : Theron::Actor(fw), id(id), tracker(fw, this->GetAddress()){
 			RegisterHandler(this, &Scene::update);
@@ -51,6 +52,7 @@ namespace stage {
 		void error(const Error &msg, Theron::Address sender){
 			if (tracker.contains(msg.id)) tracker.decrement(msg.id);
 		}
+		
 	};
 }
 

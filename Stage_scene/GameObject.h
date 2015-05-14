@@ -33,6 +33,7 @@ namespace stage{
 			RegisterHandler(this, &GameObject::allDone);
 			RegisterHandler(this, &GameObject::error);
 		}
+		~GameObject();
 	private:
 		//int id;
 		std::list<Component*> components;

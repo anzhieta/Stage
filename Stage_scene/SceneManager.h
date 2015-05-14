@@ -25,6 +25,7 @@ namespace stage{
 			receiver.RegisterHandler(&sceneCatcher, &Theron::Catcher<SetActiveScene>::Push);
 			receiver.RegisterHandler(&camCatcher, &Theron::Catcher<SetActiveCamera>::Push);
 		}
+		~SceneManager();
 
 		static Theron::Address getGlobalManager(){ return globalManager; }
 		virtual void setActiveScene(unsigned int scene);

@@ -4,6 +4,9 @@
 
 using namespace stage;
 
+SceneManager::~SceneManager(){
+}
+
 Theron::Address SceneManager::createScene(){
 	Scene* scene = new Scene(getFramework(), scenes.size());
 	scenes.push_back(scene);

@@ -6,6 +6,11 @@
 using namespace stage;
 typedef std::list<Component*>::iterator comp_iterator;
 
+GameObject::~GameObject(){
+	for (comp_iterator i = components.begin(); i != components.end(); i++){
+		delete *i;
+	}
+}
 
 void GameObject::addComponent(const AddComponent &msg, Theron::Address from){
 	components.push_back(msg.component);

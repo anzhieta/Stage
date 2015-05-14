@@ -188,15 +188,15 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << "setup2\n";
 	//std::cin >> c;
 
-	Testprinter print1(fw, obj1.object);
-	Testprinter print2(fw, obj2.object);
-	Testprinter print3(fw, obj3.object);
-	Transform tr1(fw, obj1.object);
-	Transform tr2(fw, obj2.object);
-	Transform tr3(fw, obj3.object);
-	fw.Send(Transform::SetMatrix(0, glm::mat4(1.0f)), adRec.GetAddress(), tr1.GetAddress());
-	fw.Send(Transform::Translate(0, glm::vec3(2, 0, -5)), adRec.GetAddress(), tr2.GetAddress());
-	fw.Send(Transform::Translate(0, glm::vec3(-1, 0, -5)), adRec.GetAddress(), tr3.GetAddress());
+	Testprinter* print1 = new Testprinter(fw, obj1.object);
+	Testprinter* print2 = new Testprinter(fw, obj2.object);
+	Testprinter* print3 = new Testprinter(fw, obj3.object);
+	Transform* tr1 = new Transform(fw, obj1.object);
+	Transform* tr2 = new Transform(fw, obj2.object);
+	Transform* tr3 = new Transform(fw, obj3.object);
+	fw.Send(Transform::SetMatrix(0, glm::mat4(1.0f)), adRec.GetAddress(), tr1->GetAddress());
+	fw.Send(Transform::Translate(0, glm::vec3(2, 0, -5)), adRec.GetAddress(), tr2->GetAddress());
+	fw.Send(Transform::Translate(0, glm::vec3(-1, 0, -5)), adRec.GetAddress(), tr3->GetAddress());
 
 
 	std::cout << "setup3\n";
@@ -208,8 +208,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << "setup4\n";
 	//std::cin >> c;
 
-	ModelComponent mod2(fw, &mod, obj2.object);
-	ModelComponent mod3(fw, &mod, obj3.object);
+	ModelComponent* mod2 = new ModelComponent(fw, &mod, obj2.object);
+	ModelComponent* mod3 = new ModelComponent(fw, &mod, obj3.object);
 
 	glm::mat4 Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 	glm::mat4 View = glm::lookAt(
@@ -218,13 +218,13 @@ int _tmain(int argc, _TCHAR* argv[])
 		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
 	);
 
-	CameraComponent cam(fw, obj1.object);
-	fw.Send(CameraComponent::SetViewMatrix(0, View), adRec.GetAddress(), cam.GetAddress());
-	fw.Send(CameraComponent::SetProjectionMatrix(0, Projection), adRec.GetAddress(), cam.GetAddress());
-	loop.setActiveCamera(cam.getRawCamera());
+	CameraComponent* cam = new CameraComponent(fw, obj1.object);
+	fw.Send(CameraComponent::SetViewMatrix(0, View), adRec.GetAddress(), cam->GetAddress());
+	fw.Send(CameraComponent::SetProjectionMatrix(0, Projection), adRec.GetAddress(), cam->GetAddress());
+	loop.setActiveCamera(cam->getRawCamera());
 
-	Vibrate v2(fw, obj2.object);
-	Vibrate v3(fw, obj3.object);
+	Vibrate* v2 = new Vibrate(fw, obj2.object);
+	Vibrate* v3 = new Vibrate(fw, obj3.object);
 
 	std::cout << "setup5\n";
 	loop.start();

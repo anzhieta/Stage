@@ -38,6 +38,7 @@ namespace stage{
 		bool init = false;
 		stage_common::Camera cam;
 		Theron::Address transform;
+
 		int id(){ return CAMERA_ID; }
 		void initialize(const Component::ComponentID &msg, Theron::Address sender){
 			if (msg.id != TRANSFORM_ID) return;

@@ -13,3 +13,9 @@ void Scene::createObject(const Scene::CreateObject &msg, Theron::Address sender)
 	//rend.registerRecipient(newObject->GetAddress());
 	Send(NewObject(newObject->GetAddress()), msg.requester);
 }
+
+Scene::~Scene(){
+	for (std::list<GameObject*>::iterator i = objects.begin(); i != objects.end(); i++){
+		delete *i;
+	}
+}
