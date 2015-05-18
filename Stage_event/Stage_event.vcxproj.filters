@@ -39,9 +39,15 @@
     <ClInclude Include="ContextTracker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LogActor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LogActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

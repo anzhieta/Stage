@@ -20,9 +20,9 @@ namespace stage {
 		}
 	};
 	struct Update : Event {
-		const int elapsedMS;
-		Update(int ms, uint64_t msgID) : elapsedMS(ms), Event(msgID){}
-		Update(int ms, Theron::Address originator, uint32_t msgID): elapsedMS(ms), Event(originator, msgID){}
+		const float elapsedMS;
+		Update(float ms, uint64_t msgID) : elapsedMS(ms), Event(msgID){}
+		Update(float ms, Theron::Address originator, uint32_t msgID) : elapsedMS(ms), Event(originator, msgID){}
 	};
 	struct Render : Event {
 		Render(uint64_t msgID) : Event(msgID){}

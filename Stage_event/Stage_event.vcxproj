@@ -40,7 +40,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\theron\2013\Theron-6.00.02\Include;$(IncludePath)</IncludePath>
+    <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_utilities;D:\theron\2013\Theron-6.00.02\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -81,11 +81,13 @@
     <ClInclude Include="CoreEvents.h" />
     <ClInclude Include="EventChannel.h" />
     <ClInclude Include="EventContext.h" />
+    <ClInclude Include="LogActor.h" />
     <ClInclude Include="ResponseTracker.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LogActor.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

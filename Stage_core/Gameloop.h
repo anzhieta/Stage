@@ -5,6 +5,7 @@
 #include <Theron\Framework.h>
 #include <SceneManager.h>
 #include "GraphicsControlActor.h"
+#include <LogActor.h>
 
 namespace stage {
 
@@ -15,6 +16,7 @@ namespace stage {
 				std::abort();
 			}
 			gc = new GraphicsControlActor(fw, windowName, xres, yres);
+			logger = new LogActor(fw);
 			SceneManager::globalManager = receiver.GetAddress();
 		}
 		~Gameloop(){
@@ -23,6 +25,7 @@ namespace stage {
 				delete *i;
 			}
 			delete gc;
+			delete logger;
 		}
 		float getTimescale();
 		void setTimescale(float ts);
@@ -36,6 +39,7 @@ namespace stage {
 	private:
 		Theron::Framework fw;
 		GraphicsControlActor* gc;
+		LogActor* logger;
 		stage_common::Camera* activeCam;
 		float timescale = 1;
 		bool abort = false;
