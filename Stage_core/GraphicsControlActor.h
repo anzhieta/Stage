@@ -1,4 +1,4 @@
-#ifndef GRAPHICSCONTROLACTOR_H
+﻿#ifndef GRAPHICSCONTROLACTOR_H
 #define GRAPHICSCONTROLACTOR_H
 
 #include "stdafx.h"
@@ -11,62 +11,66 @@
 
 
 namespace stage {
+	/** Grafiikkamoottoria hallinnoiva aktori-singleton. 
+	Pitää huolen, että lista piirrettävistä 3D-malleista muodostetaan säieturvallisesti.
+	Ottaa vastaan viestit:
+	GraphicsControlActor::Queue (vastaa AllDone)
+	*/
 	class GraphicsControlActor : public Theron::Actor{
+		friend class Gameloop;
 	public:
+		/** Viesti, joka lisää uuden 3D-mallin seuraavassa ruudunpäivityksessä piirrettävien mallien listalle
+		*/
 		struct Queue : public Event{
+			/** Piirrettävä 3D-malli
+			*/
 			stage_common::Model* model;
+			/** Sijainti pelimaailmassa, johon malli piirretään
+			*/
 			const glm::mat4& position;
 			Queue(Theron::Address originator, uint32_t msgID, stage_common::Model* mod, glm::mat4& pos):
 				Event(originator, msgID), model(mod), position(pos){}
 			Queue(uint64_t msgID, stage_common::Model* mod, const glm::mat4& pos) :
 				Event(msgID), model(mod), position(pos){}
 		};
-		struct Draw : public Event{
-			const stage_common::Camera& cam;
-			Draw(Theron::Address originator, uint32_t msgID, stage_common::Camera& cam) :
-				Event(originator, msgID), cam(cam){}
-			Draw(uint64_t msgID, stage_common::Camera& cam) :
-				Event(msgID), cam(cam){}
-		};
 
-		GraphicsControlActor(Theron::Framework& fw, std::string windowname, int x, int y) :
-			Theron::Actor(fw), gc(windowname, x, y) {
-			if (globalController == Theron::Address::Null()){
-				globalController = this->GetAddress();
-			}
-			else {
-				std::cout << "gc already set\n";
-				return;
-			}
-			RegisterHandler(this, &GraphicsControlActor::queue);
-			RegisterHandler(this, &GraphicsControlActor::draw);
-			
-		}
-		~GraphicsControlActor(){
-			if (globalController == this->GetAddress()) globalController = Theron::Address::Null();
-		}
-
-		stage_common::GraphicsController* getRawController() {
-			return &gc;
-		}
-
-		bool shouldClose(){ return gc.stopLoop; }
-
+		/** Luo uuden grafiikkamoottoria hallinnoivan aktorin ja avaa peli-ikkunan
+		@param fw			Tätä aktoria hallinnoiva Theron::Framework
+		@param windowname	Luotavan peli-ikkunan nimi
+		@param x			Ikkunan vaakaresoluutio
+		@param y			Ikkunan pystyresoluutio
+		*/
+		GraphicsControlActor(Theron::Framework& fw, std::string windowname, int x, int y);
+		/** Tuhoaa grafiikkamoottoria hallinnoivan aktorin
+		*/
+		~GraphicsControlActor();
+		/** Antaa globaalin GraphicsControlActor-singletonin osoitteen
+		@returns	Globaalin grafiikkamoottoria hallinnoivan aktorin osoite
+		*/
 		static Theron::Address getGlobalController(){ return globalController; }
 	private:
+		/** Globaalin grafiikkamoottoria hallinnoivan aktorin osoite
+		*/
 		static Theron::Address globalController;
+		/** Grafiikkamoottoriolio
+		*/
 		stage_common::GraphicsController gc;
 
-		void queue(const Queue& msg, Theron::Address sender){
-			gc.queue(msg.model, msg.position);
-			Send(AllDone(msg.id), sender);
-		}
-		void draw(const Draw& msg, Theron::Address sender){
-			std::cout << "drawing\n";
-			gc.draw(msg.cam);
-			//std::cout << "drew\n";
-			Send(AllDone(msg.id), sender);
-		}
+		/** Antaa osoittimen varsinaiseen grafiikkamoottoriolioon.
+		Tarvitaan kuvan piirtämistä varten, koska OpenGL-kontekstit ovat säiekohtaisia,
+		joten 3D-mallit on piirrettävä siinä säikeessä, joka alun perin käynnisti grafiikkamoottorin.
+		@returns	Osoitin grafiikkamoottoriolioon
+		*/
+		stage_common::GraphicsController* getRawController() { return &gc; }
+		/** Kertoo, onko käyttäjä pyytänyt ohjelmaa pysähtymään.
+		@returns	True, jos ohjelman suoritus tulisi pysäyttää
+		*/
+		bool shouldClose(){ return gc.shouldStop(); }
+
+		/** Lisää uuden 3D-mallin seuraavassa ruudunpäivityksessä piirrettävien mallien listalle
+		@param msg	Viesti, joka sisältää osoittimen piirrettävään malliin sekä sijainnin, johon malli piirretään
+		*/
+		void queue(const Queue& msg, Theron::Address sender);
 	};
 }
 

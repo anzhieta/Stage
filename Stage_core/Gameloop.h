@@ -1,4 +1,4 @@
-#ifndef GAMELOOP_H
+﻿#ifndef GAMELOOP_H
 #define GAMELOOP_H
 
 #include "stdafx.h"
@@ -9,42 +9,85 @@
 
 namespace stage {
 
+	/** Olio, joka pyörittää pelimoottorin pelisilmukkaa ja hoitaa pelimoottorin yleiseen ylläpitoon kuuluvia asioita.
+	*/
 	class Gameloop : public SceneManager{
 	public:
-		Gameloop(std::string& windowName, int xres, int yres){
-			if (SceneManager::globalManager != Theron::Address::Null()){
-				std::abort();
-			}
-			gc = new GraphicsControlActor(fw, windowName, xres, yres);
-			logger = new LogActor(fw);
-			SceneManager::globalManager = receiver.GetAddress();
-		}
-		~Gameloop(){
-			if (globalManager == receiver.GetAddress()) globalManager = Theron::Address::Null();
-			for (std::vector<Scene*>::iterator i = scenes.begin(); i != scenes.end(); i++){
-				delete *i;
-			}
-			delete gc;
-			delete logger;
-		}
-		float getTimescale();
-		void setTimescale(float ts);
-		Theron::Framework& getFramework(){ return fw; }
-		void setActiveCamera(stage_common::Camera* cam){
-			activeCam = cam;
-		}
 
+		/** Luo pelisilmukan ja avaa uuden OpenGL-ikkunan.
+		@param windowName	Ikkunan nimi
+		@param xres			Ikkunan vaakaresoluutio
+		@param yres			Ikkunan pystyresoluutio
+		*/
+		Gameloop(std::string& windowName, int xres, int yres);
+
+		/** Tuhoaa pelisilmukan
+		*/
+		~Gameloop();
+
+		/** Palauttaa pelisilmukan aikaskaalan (kuinka nopeasti simulaatiota suoritetaan)
+		@returns	Aikaskaala liukulukuna
+		*/
+		float getTimescale();
+
+		/** Asettaa pelisilmukan aikaskaalan (kuinka nopeasti simulaatiota suoritetaan)
+		@param ts	Aikaskaala liukulukuna
+		*/
+		void setTimescale(float ts);
+
+		/** Palauttaa viitteen pelimaailman olioita hallinnoivaan Theron::Framework-olioon
+		*/
+		Theron::Framework& getFramework(){ return fw; }
+
+		/** Asettaa pelin pääkameran, jonka näkökulmasta pelimaailmaa kuvataan
+		@param cam	Viite kameraolioon
+		*/
+		void setActiveCamera(stage_common::Camera* cam);
+
+		/** Käynnistää pelisilmukan suorituksen, joka päättyy peliohjelman sulkeutuessa
+		*/
 		void start();
-		void stop();
+		
 	private:
+		/** Pelin olioita ja niiden välisiä viestejä hallinnoiva olio
+		*/
 		Theron::Framework fw;
+
+		/** Grafiikkamoottorin toiminnasta vastaava aktori
+		*/
 		GraphicsControlActor* gc;
+
+		/** Lokista vastaava aktori
+		*/
 		LogActor* logger;
+
+		/** Kamera, jonka kuvakulmasta pelimaailma piirretään
+		*/
 		stage_common::Camera* activeCam;
+
+		/** Pelisilmukan aikaskaala (kuinka nopeasti simulaatiota suoritetaan)
+		*/
 		float timescale = 1;
+
+		/** Pysäytetäänkö pelisilmukan suoritus tämän kierroksen jälkeen
+		*/
 		bool abort = false;
 
+		/** Seuraavan lähetettävän viestin tunnus
+		*/
+		uint32_t msgid = 0;
+
+
+		/** Pelisilmukkametodi: kutsuu toistuvasti peliolioiden update- ja render-metodeja.
+		*/
 		void loop();
+
+		/** Pysäyttää pelisilmukan suorituksen
+		*/
+		void stop();
+
+		/** Viimeistelee pelisilmukan pysäyttämisen ja jättää pelisilmukan tilaan, jossa se voidaan turvallisesti tuhota.
+		*/
 		void shutdown();
 	};
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "stdafx.h"
 #include <Theron\Theron.h>
@@ -13,90 +13,122 @@
 
 using namespace stage;
 
-namespace stage {
-
-	float Gameloop::getTimescale() {
-			return timescale;
+Gameloop::Gameloop(std::string& windowName, int xres, int yres){
+	if (SceneManager::globalManager != Theron::Address::Null()){
+		//Sallitaan vain yksi Gameloop
+		std::abort();
 	}
-	void Gameloop::setTimescale(float ts) {
-		timescale = ts;
+	gc = new GraphicsControlActor(fw, windowName, xres, yres);
+	logger = new LogActor(fw);
+	SceneManager::globalManager = receiver.GetAddress();
+}
+
+Gameloop::~Gameloop(){
+	if (globalManager == receiver.GetAddress()) globalManager = Theron::Address::Null();
+	//Poistetaan pelialueet
+	for (std::vector<Scene*>::iterator i = scenes.begin(); i != scenes.end(); i++){
+		delete *i;
 	}
-	void Gameloop::start() {
-		if (Theron::Address::Null() == activeScene) return;
-		loop();
+	//Poistetaan grafiikkamoottori
+	delete gc;
+	//Poistetaan lokipalvelu
+	delete logger;
+}
+
+float Gameloop::getTimescale() {
+		return timescale;
+}
+void Gameloop::setTimescale(float ts) {
+	timescale = ts;
+}
+
+void Gameloop::setActiveCamera(stage_common::Camera* cam){
+	activeCam = cam;
+}
+
+void Gameloop::start() {
+	if (Theron::Address::Null() == activeScene){
+		fw.Send(LogActor::LogError("Failed to start game engine: active scene not set"), receiver.GetAddress(), logger->GetAddress());
+		return;
 	}
-	void Gameloop::stop(){
-		abort = true;
+	if (activeCam == nullptr){
+		fw.Send(LogActor::LogError("Failed to start game engine: active camera not set"), receiver.GetAddress(), logger->GetAddress());
+		return;
 	}
-	void Gameloop::loop() {
-		Theron::Address sender;
-		AllDone ad(0);
-		Theron::Address recAddress = receiver.GetAddress();
-		stage_common::Timer upTimer;
-		stage_common::Timer rendTimer;
-		stage_common::Timer maintTimer;
-		stage_common::Timer loopTimer;
-		while (!abort) {
-			loopTimer.start();
+	loop();
+}
+void Gameloop::stop(){
+	abort = true;
+}
+void Gameloop::loop() {
+	Theron::Address sender;
 
-			//Update phase
-			upTimer.start();
-			//std::cout << "update phase\n";
-			fw.Send(Update((float)loopTimer.lastTickTime(), receiver.GetAddress(), 1), recAddress, activeScene);
-			while (doneCatcher.Empty()){
-				receiver.Wait();
-			}
-			doneCatcher.Pop(ad, sender);
-			upTimer.stop();
+	//Placeholder-viesti catchereitä varten
+	AllDone ad(0);
+	Theron::Address recAddress = receiver.GetAddress();
+	stage_common::Timer upTimer;	//Päivitysajastin
+	stage_common::Timer rendTimer;	//Piirtoajastin
+	stage_common::Timer maintTimer;	//Ylläpitoajastin
+	stage_common::Timer loopTimer;	//Koko pelisilmukan ajastin
 
-			//Delete phase
+	//Pelisilmukka
+	while (!abort) {
+		loopTimer.start();
 
-			//Render phase
-			rendTimer.start();
-			//std::cout << "render phase\n";
-			fw.Send(Render(receiver.GetAddress(), 1), recAddress, activeScene);
-			while (doneCatcher.Empty()){
-				receiver.Wait();
-			}
-			doneCatcher.Pop(ad, sender);
-			//std::cout << "render finish\n";
-			gc->getRawController()->draw(*activeCam);
-			rendTimer.stop();
-
-			//Maintenance phase
-			maintTimer.start();
-			//std::cout << "maintenance phase\n";
-
-			if (!abortCatcher.Empty()) abort = true;
-			if (gc->shouldClose()) abort = true;
-			maintTimer.stop();
-			loopTimer.stop();
-		}
-		fw.Send(LogActor::LogMessage("Total runtime " + std::to_string(loopTimer.totalTime())), recAddress, logger->GetAddress());
-		//std::cout << "Total runtime: " << loopTimer.totalTime() << std::endl;
-		fw.Send(LogActor::LogMessage("Total frames: " + std::to_string(loopTimer.totalTicks())), recAddress, logger->GetAddress());
-		fw.Send(LogActor::LogMessage("Average loop time: " + std::to_string(loopTimer.averageTime())), recAddress, logger->GetAddress());
-		fw.Send(LogActor::LogMessage("Average update time: " + std::to_string(upTimer.averageTime())), recAddress, logger->GetAddress());
-		fw.Send(LogActor::LogMessage("Average render time: " + std::to_string(rendTimer.averageTime())), recAddress, logger->GetAddress());
-		fw.Send(LogActor::LogMessage("Average maintenance time: " + std::to_string(maintTimer.averageTime())), recAddress, logger->GetAddress());
-
-		shutdown();
-	}
-	void Gameloop::shutdown(){
-		fw.Send(LogActor::LogMessage("Shutting down"), receiver.GetAddress(), logger->GetAddress());
-		Theron::Catcher<LogActor::Terminate> terminateCatcher;
-		receiver.RegisterHandler(&terminateCatcher, &Theron::Catcher<LogActor::Terminate>::Push);
-		fw.Send(LogActor::Terminate(), receiver.GetAddress(), logger->GetAddress());
-		while (terminateCatcher.Empty()){
+		//Päivitysvaihe
+		upTimer.start();
+		uint64_t id = Event::generateID(recAddress, msgid++);
+		fw.Send(Update((float)loopTimer.lastTickTime() * timescale, receiver.GetAddress(), id), recAddress, activeScene);
+		while (doneCatcher.Empty()){
+			//Odotetaan, kunnes laskenta päättyy
 			receiver.Wait();
 		}
-	}
+		doneCatcher.Pop(ad, sender);
+		upTimer.stop();
 
-	/*void Gameloop::setActiveScene(Theron::Address scene){
-		activeScene = scene;
-	}
+		//Poistovaihe
+		//TODO: peliolioiden poistaminen
 
-	Theron::Address Gameloop::createScene(){
-		activeScene = scene;
-	}*/
-};
+		//Piirtovaihe
+		rendTimer.start();
+		//Haetaan piirrettävät mallit
+		id = Event::generateID(recAddress, msgid++);
+		fw.Send(Render(receiver.GetAddress(), id), recAddress, activeScene);
+		while (doneCatcher.Empty()){
+			receiver.Wait();
+		}
+		doneCatcher.Pop(ad, sender);
+		//Piirretään kuva ruudulle (tehtävä pääsäikeessä, koska OpenGL-kontekstit ovat säiekohtaisia)
+		gc->getRawController()->draw(*activeCam);
+		rendTimer.stop();
+
+		//Ylläpitovaihe
+		maintTimer.start();
+		//Tarkistetaan, pitääkö ohjelma sulkea
+		if (!abortCatcher.Empty()) stop();
+		if (gc->shouldClose()) stop();
+		maintTimer.stop();
+		loopTimer.stop();
+	}
+	//Kirjoitetaan lokiin suorituskykytiedot
+	fw.Send(LogActor::LogMessage("Total runtime " + std::to_string(loopTimer.totalTime())), recAddress, logger->GetAddress());
+	fw.Send(LogActor::LogMessage("Total frames: " + std::to_string(loopTimer.totalTicks())), recAddress, logger->GetAddress());
+	fw.Send(LogActor::LogMessage("Average loop time: " + std::to_string(loopTimer.averageTime())), recAddress, logger->GetAddress());
+	fw.Send(LogActor::LogMessage("Average fps: " + std::to_string(1000 / loopTimer.averageTime())), recAddress, logger->GetAddress());
+	fw.Send(LogActor::LogMessage("Average update time: " + std::to_string(upTimer.averageTime())), recAddress, logger->GetAddress());
+	fw.Send(LogActor::LogMessage("Average render time: " + std::to_string(rendTimer.averageTime())), recAddress, logger->GetAddress());
+	fw.Send(LogActor::LogMessage("Average maintenance time: " + std::to_string(maintTimer.averageTime())), recAddress, logger->GetAddress());
+
+	shutdown();
+}
+void Gameloop::shutdown(){
+	//Annetaan lokiolion kirjoittaa kaikki vielä odottavat viestit, jotta se voi sulkeutua turvallisesti
+	fw.Send(LogActor::LogMessage("Shutting down"), receiver.GetAddress(), logger->GetAddress());
+	Theron::Catcher<LogActor::Terminate> terminateCatcher;
+	receiver.RegisterHandler(&terminateCatcher, &Theron::Catcher<LogActor::Terminate>::Push);
+	fw.Send(LogActor::Terminate(), receiver.GetAddress(), logger->GetAddress());
+	while (terminateCatcher.Empty()){
+		//Odotetaan, kunnes lokioliolla ei enää ole tehtävää
+		receiver.Wait();
+	}
+}

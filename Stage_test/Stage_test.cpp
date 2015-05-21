@@ -203,7 +203,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//std::cin >> c;
 
 	stage_common::SimpleShader ss;
-	stage_common::Model mod(vertices, 12, colors, &ss);
+	stage_common::Model mod(vertices, colors, &ss);
 
 	std::cout << "setup4\n";
 	//std::cin >> c;

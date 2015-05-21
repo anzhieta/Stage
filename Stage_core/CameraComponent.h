@@ -1,6 +1,8 @@
-#ifndef CAMERACOMPONENT_H
+﻿#ifndef CAMERACOMPONENT_H
 #define CAMERACOMPONENT_H
 
+/**Kamerakomponentin komponenttitunnus
+*/
 #define CAMERA_ID 2
 
 #include "stdafx.h"
@@ -12,68 +14,101 @@
 #include "GraphicsControlActor.h"
 
 namespace stage{
+	/** Peliolioon liitettävä kamerakomponentti. Toimii wrapperina stage_common::Camera:lle.
+	Kun peliolioon liitetään tämä komponentti, pelimaailma voidaan piirtää sen kuvakulmasta.
+	Ottaa vastaan viestit:
+	Update (vastaa AllDone)
+	Render (vastaa AllDone)
+	CameraComponent::SetViewMatrix (vastaa AllDone)
+	CamaraComponent::SetProjectionMatrix (vastaa AllDone)
+	*/
 	class CameraComponent : public Component{
+		friend class GameLoop;
 	public:
-		struct DrawCamera : public Event{
-			DrawCamera(uint64_t id) : Event(id){}
-		};
+		//Viestit
+
+		/** Viesti, joka pyytää kamerakomponenttia asettamaan uuden näkymämatriisin 
+		(Huom. normaalisti kamera hakee omistajaolioltaan näkymämatriisin joka Render-viestin yhteydessä)
+		*/
 		struct SetViewMatrix : public Event{
+			/** Uusi näkymämatriisi
+			*/
 			glm::mat4& view;
 			SetViewMatrix(uint64_t id, glm::mat4& view) : Event(id), view(view){}
 		};
+
+		/** Viesti, joka pyytää kamerakomponenttia asettamaan uuden projektiomatriisin 
+		*/
 		struct SetProjectionMatrix : public Event{
+			/** Uusi projektiomatriisi
+			*/
 			glm::mat4& projection;
 			SetProjectionMatrix(uint64_t id, glm::mat4& projection) : Event(id), projection(projection){}
 		};
-		CameraComponent(Theron::Framework& fw, Theron::Address owner) : Component(fw, owner){
-			RegisterHandler(this, &CameraComponent::initialize);
-			RegisterHandler(this, &CameraComponent::completeRender);
-			RegisterHandler(this, &CameraComponent::drawCamera);
-			RegisterHandler(this, &CameraComponent::setViewMatrix);
-			RegisterHandler(this, &CameraComponent::setProjectionMatrix);
-			Send(GameObject::GetComponent(TRANSFORM_ID, this->GetAddress()), owner);
-		}
+
+		//Metodit
+
+		/** Luo uuden kamerakomponentin. Katso oikea käyttö yliluokasta.
+		@see			stage::Component
+		@param fw		Theron::Framework, jonka alaisuudessa tämä komponentti toimii
+		@param owner	Sen peliolion osoite, joka omistaa tämän komponentin
+		*/
+		CameraComponent(Theron::Framework& fw, Theron::Address owner);
+		
+		/** Hakee osoittimen tämän komponentin kameraolioon
+		HUOM: ei säieturvallinen, älä käytä paluuarvoa pelimoottorin ollessa käynnissä
+		@returns	Osoitin kameraolioon
+		*/
 		stage_common::Camera* getRawCamera(){ return &cam; }
+
+		/** Hakee olion komponenttitunnuksen
+		@returns	Tämän komponentin tunnus
+		*/
+		virtual int id(){ return CAMERA_ID; }
 	private:
+		/** Onko komponentti käynnistetty, eli voiko se suorittaa update- ja render-kutsuja
+		*/
 		bool init = false;
+
+		/** Komponentin kameraolio
+		*/
 		stage_common::Camera cam;
+
+		/** Omistajaolion sijaintia ylläpitävän olion osoite
+		*/
 		Theron::Address transform;
 
-		int id(){ return CAMERA_ID; }
-		void initialize(const Component::ComponentID &msg, Theron::Address sender){
-			if (msg.id != TRANSFORM_ID) return;
-			DeregisterHandler(this, &CameraComponent::initialize);
-			transform = sender;
-			init = true;
-		}
-		virtual void render(const Render& msg, Theron::Address sender){
-			if (!init){
-				Send(AllDone(msg.id), sender);
-				return;
-			}
-			uint64_t id = tracker.getNextID();
-			tracker.addContext(msg.id, id, sender);
-			Send(Transform::GetMatrix(id), transform);
-		}
-		virtual void completeRender(const Transform::Matrix& msg, Theron::Address sender){
-			if (!tracker.contains(msg.id)) return;
-			cam.setViewMatrix(msg.matrix);
-			tracker.decrement(msg.id);
-		}
-		virtual void drawCamera(const DrawCamera& msg, Theron::Address sender){
-			std::cout << "cam\n";
-			uint64_t id = tracker.getNextID();
-			tracker.addContext(msg.id, id, sender);
-			Send(GraphicsControlActor::Draw(id, cam), GraphicsControlActor::getGlobalController());
-		}
-		virtual void setViewMatrix(const SetViewMatrix& msg, Theron::Address sender){
-			cam.setViewMatrix(msg.view);
-			Send(AllDone(msg.id), sender);
-		}
-		virtual void setProjectionMatrix(const SetProjectionMatrix& msg, Theron::Address sender){
-			cam.setProjectionMatrix(msg.projection);
-			Send(AllDone(msg.id), sender);
-		}
+		//Metodit
+
+		/** Suorittaa loppuun komponentin käynnistyksen
+		@param msg		Sijaintiolion komponenttitunnuksen sisältävä viesti
+		@param sender	Sijaintiolion osoite
+		*/
+		void initialize(const Component::ComponentID &msg, Theron::Address sender);
+
+		/** Suorittaa tarvittavan laskennan ruudun piirtoa varten
+		@param msg		Renderöintipyyntö
+		@param sender	Lähettäjän osoite
+		*/
+		virtual void render(const Render& msg, Theron::Address sender);
+
+		/** Suorittaa loppuun tarvittavan laskennan ruudun piirtoa varten
+		@param msg		Kameran uusi näkymämatriisi
+		@param sender	Lähettäjän osoite
+		*/
+		void completeRender(const Transform::Matrix& msg, Theron::Address sender);
+
+		/** Asettaa kameralle uuden näkymämatriisin
+		@param msg		Kameran uusi näkymämatriisi
+		@param sender	Lähettäjän osoite
+		*/
+		void setViewMatrix(const SetViewMatrix& msg, Theron::Address sender);
+
+		/** Asettaa kameralle uuden projektiomatriisin
+		@param msg		Kameran uusi projektiomatriisi
+		@param sender	Lähettäjän osoite
+		*/
+		void setProjectionMatrix(const SetProjectionMatrix& msg, Theron::Address sender);
 	};
 }
 
