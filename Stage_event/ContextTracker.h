@@ -83,12 +83,22 @@ namespace stage{
 		}
 
 		template <typename T>
+		/** Liittää kontekstiin muuttujan
+		@param id		Sen kontekstin tunnus, johon muuttuja liitetään
+		@param index	Muuttujan järjestysnumero (alkaa nollasta)
+		@param var		Muuttujan arvo
+		*/
 		void setVariable(uint64_t id, int index, T var){
 			boost::any content = var;
 			pending[id].setVar(index, content);
 		}
 
 		template <typename T>
+		/** Hakee kontekstiin liitetyn muuttujan arvon
+		@param id		Sen kontekstin tunnus, johon muuttuja on liitetty
+		@param index	Muuttujan järjestysnumero (alkaa nollasta)
+		@returns		Muuttujan arvo
+		*/
 		T getVariable(uint64_t id, int index){
 			return boost::any_cast<T>(pending[id].getVar(index));
 		}

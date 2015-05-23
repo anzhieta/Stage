@@ -46,18 +46,30 @@ namespace stage{
 			error = finalize;
 		}
 
+		/** Estetään kopiokonstruktori
+		*/
 		EventContext(EventContext& other) = delete;
 
+		/** Tuhoaa yksittäisen tapahtumakontekstin ja siihen liittyvät muuttujat
+		*/
 		~EventContext(){
 			if (varHead != nullptr){
 				delete varHead;
 			}
 		}
 
+		/** Hakee kontekstiin liitetyn muuttujan arvon
+		@param depth	Muuttujan järjestysnumero (alkaa nollasta)
+		@returns		Muuttujan arvo
+		*/
 		boost::any getVar(int depth) const{
 			return varHead->get(depth);
 		}
 
+		/** Liittää kontekstiin muuttujan
+		@param depth	Muuttujan järjestysnumero (alkaa nollasta)
+		@param var		Muuttujan arvo
+		*/
 		void setVar(int depth, boost::any var){
 			if (varHead == nullptr){
 				boost::any a = 0;
