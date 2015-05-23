@@ -10,6 +10,10 @@
 
 namespace stage {
 
+	/** --DEPRECATED--
+	TODO: kontekstimalliin sopiva versio
+	*/
+
 #define REGISTER_CHANNEL(TYPE) \
 	RegisterHandler(this, &EventChannel<TYPE>::registerRecipient);\
 	RegisterHandler(this, &EventChannel<TYPE>::deregisterRecipient);\

@@ -30,9 +30,6 @@
     <ClInclude Include="CoreEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ResponseTracker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="EventContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,6 +45,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LogActor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ContextTracker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

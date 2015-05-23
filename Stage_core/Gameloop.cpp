@@ -78,7 +78,7 @@ void Gameloop::loop() {
 		//Päivitysvaihe
 		upTimer.start();
 		uint64_t id = Event::generateID(recAddress, msgid++);
-		fw.Send(Update((float)loopTimer.lastTickTime() * timescale, receiver.GetAddress(), id), recAddress, activeScene);
+		fw.Send(Update((float)loopTimer.lastTickTime() * timescale, id), recAddress, activeScene);
 		while (doneCatcher.Empty()){
 			//Odotetaan, kunnes laskenta päättyy
 			receiver.Wait();
@@ -93,7 +93,7 @@ void Gameloop::loop() {
 		rendTimer.start();
 		//Haetaan piirrettävät mallit
 		id = Event::generateID(recAddress, msgid++);
-		fw.Send(Render(receiver.GetAddress(), id), recAddress, activeScene);
+		fw.Send(Render(id), recAddress, activeScene);
 		while (doneCatcher.Empty()){
 			receiver.Wait();
 		}
