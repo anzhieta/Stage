@@ -82,6 +82,17 @@ namespace stage{
 			fw.Send(ev, owner, recipient);
 		}
 
+		template <typename T>
+		void setVariable(uint64_t id, int index, T var){
+			boost::any content = var;
+			pending[id].setVar(index, content);
+		}
+
+		template <typename T>
+		T getVariable(uint64_t id, int index){
+			return boost::any_cast<T>(pending[id].getVar(index));
+		}
+
 		/** Generoi uuden viestitunnuksen
 		@param returns	Viestin uniikisti määrittelevä tunnusarvo
 		*/

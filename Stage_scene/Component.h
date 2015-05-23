@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
@@ -10,14 +10,23 @@
 
 namespace stage{
 	
+	/** Abstrakti pelimoottorikomponenttien yliluokka.
+	Kaikki pelimoottoreihin liitettävät komponentit perivät tämän luokan.
+	*/
 	class Component : public Theron::Actor{
 	public:
-		struct ComponentID{
-			unsigned int id;
-			ComponentID(int id): id(id){}
+		struct ComponentID : Event{
+			unsigned int compID;
+			ComponentID(uint64_t id, int compID) : Event(id), compID(compID){}
 		};
-		struct GetComponentID{
+		struct GetComponentID : Event{
+			GetComponentID(uint64_t id) : Event(id){}
 		};
+
+		/** Luo uuden pelimoottorikomponentin.
+		HUOM: luo komponenttiolio aina new:llä äläkä tuhoa sitä itse.
+		Komponenttiolio tuhotaan aina automaattisesti, kun sen omistava peliolio tuhotaan.
+		*/
 		Component(Theron::Framework &fw, Theron::Address owner) : Theron::Actor(fw), owner(owner), tracker(fw, this->GetAddress()){
 			RegisterHandler(this, &Component::update);
 			RegisterHandler(this, &Component::render);
@@ -39,11 +48,13 @@ namespace stage{
 		}
 
 		virtual void isType(const GameObject::GetComponent &msg, Theron::Address from){
-			if (msg.id == id())
-			Send(ComponentID(id()), msg.requester);
+			if (msg.compID == id()){
+				Send(GameObject::ComponentFound(msg.id, this->GetAddress()), from);
+			}
+			else Send(AllDone(msg.id), from);
 		}
 		virtual void getId(const GetComponentID &msg, Theron::Address from){
-			Send(ComponentID(id()), from);
+			Send(ComponentID(msg.id, id()), from);
 		}
 		virtual void allDone(const AllDone& msg, Theron::Address from){
 			if (tracker.contains(msg.id)) tracker.decrement(msg.id);

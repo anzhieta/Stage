@@ -123,7 +123,13 @@ class Vibrate : public Component {
 public:
 	Vibrate(Theron::Framework& fw, Theron::Address owner) : Component(fw, owner){
 		RegisterHandler(this, &Vibrate::initialize);
-		Send(GameObject::GetComponent(TRANSFORM_ID, this->GetAddress()), owner);
+		uint64_t msgid = tracker.getNextID();
+		EventContext& ev = tracker.addContext(0, msgid, Theron::Address::Null());
+		ev.finalize = [](){};
+		ev.error = [this](){
+			LOGMSG("Error: Attempted to initialize vibrate component, but owner does not have a transform");
+		};
+		Send(GameObject::GetComponent(msgid, TRANSFORM_ID, this->GetAddress()), owner);
 	}
 	
 	virtual int id(){
@@ -139,10 +145,11 @@ private:
 		tracker.addContext(msg.id, id, sender);
 		Send(Transform::Translate(id, glm::vec3(rand1, rand2, rand3)), transform);
 	}
-	void initialize(const Component::ComponentID &msg, Theron::Address sender){
-		if (msg.id != TRANSFORM_ID) return;
+	void initialize(const GameObject::ComponentFound &msg, Theron::Address sender){
+		if (!tracker.contains(msg.id)) return;
+		tracker.decrement(msg.id);
 		DeregisterHandler(this, &Vibrate::initialize);
-		transform = sender;
+		transform = msg.component;
 		init = true;
 	}
 

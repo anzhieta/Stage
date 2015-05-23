@@ -40,7 +40,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;D:\theron\2013\Theron-6.00.02\Include;$(IncludePath)</IncludePath>
+    <IncludePath>D:\boost_1_58\boost_1_58_0;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;D:\theron\2013\Theron-6.00.02\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

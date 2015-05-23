@@ -53,7 +53,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\glm\glm;D:\glfw\glfw-3.1.bin.WIN32\include;D:\glew\glew-1.12.0\include;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_control\Stage_common_graphics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\boost_1_58\boost_1_58_0;D:\glm\glm;D:\glfw\glfw-3.1.bin.WIN32\include;D:\glew\glew-1.12.0\include;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_control\Stage_common_graphics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

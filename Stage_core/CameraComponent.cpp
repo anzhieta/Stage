@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "CameraComponent.h"
+#include <LogActor.h>
 
 using namespace stage;
 
@@ -7,17 +8,24 @@ using namespace stage;
 CameraComponent::CameraComponent(Theron::Framework& fw, Theron::Address owner) : Component(fw, owner){
 	RegisterHandler(this, &CameraComponent::initialize);
 	//Haetaan isäntäolion sijaintikomponentti, jotta kameran sijainti voidaan päivittää ruudun piirron yhteydessä
-	Send(GameObject::GetComponent(TRANSFORM_ID, this->GetAddress()), owner);
+	uint64_t msgid = tracker.getNextID();
+	EventContext& ev = tracker.addContext(0, msgid, Theron::Address::Null());
+	ev.finalize = [](){};
+	ev.error = [this](){
+		LOGMSG("Error: Attempted to initialize camera component, but owner does not have a transform");
+	};
+	Send(GameObject::GetComponent(msgid, TRANSFORM_ID, this->GetAddress()), owner);
 	RegisterHandler(this, &CameraComponent::completeRender);
 	RegisterHandler(this, &CameraComponent::setViewMatrix);
 	RegisterHandler(this, &CameraComponent::setProjectionMatrix);
 	
 }
 
-void CameraComponent::initialize(const Component::ComponentID &msg, Theron::Address sender){
-	if (msg.id != TRANSFORM_ID) return;
+void CameraComponent::initialize(const GameObject::ComponentFound &msg, Theron::Address sender){
+	if (!tracker.contains(msg.id)) return;
+	tracker.decrement(msg.id);
 	DeregisterHandler(this, &CameraComponent::initialize);
-	transform = sender;
+	transform = msg.component;
 	init = true;
 }
 //---Kontekstiyksikkö päättyy--

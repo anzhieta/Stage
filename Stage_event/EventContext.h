@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include <functional>
 #include <iostream>
+#include "ContextVarList.h"
 
 namespace stage{
 	/** Luokka, joka ylläpitää kontekstitietoja usean viestin käsittelyn yli.
@@ -25,6 +26,8 @@ namespace stage{
 		*/
 		std::function<void()> error;
 
+		ContextVar* varHead = nullptr;
+
 		//TODO: mielivaltaiset muuttujat boost::any:n avulla
 
 		/** Luo uuden tapahtumakontekstin.
@@ -41,6 +44,26 @@ namespace stage{
 			//Estetään lopetusmetodin kutsuminen tyhjälle kontekstille
 			finalize = [](){abort(); };
 			error = finalize;
+		}
+
+		EventContext(EventContext& other) = delete;
+
+		~EventContext(){
+			if (varHead != nullptr){
+				delete varHead;
+			}
+		}
+
+		boost::any getVar(int depth) const{
+			return varHead->get(depth);
+		}
+
+		void setVar(int depth, boost::any var){
+			if (varHead == nullptr){
+				boost::any a = 0;
+				varHead = new ContextVar(a);
+			}
+			varHead->set(depth, var);
 		}
 
 		/** Palauttaa sen viestin tunnuksen, joka aiheutti tämän kontekstin luomisen

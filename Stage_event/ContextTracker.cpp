@@ -7,7 +7,7 @@ EventContext& ContextTracker::addContext(uint64_t oldID, uint64_t newID, Theron:
 	pending[newID] = EventContext(oldID, originalSender, responseCount);
 	EventContext& context = pending[newID];
 	//Asetetaan oletuskäsittelijä kontekstin loppuunsuorittamiselle: palautetaan AllDone alkuperäiselle lähettäjälle
-	context.finalize = [this, oldID, context](){
+	context.finalize = [this, oldID, &context](){
 		this->fw.Send(AllDone(oldID), this->owner, context.getOriginalSender());
 	};
 	context.error = context.finalize;

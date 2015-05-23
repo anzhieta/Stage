@@ -84,7 +84,7 @@ namespace stage{
 		@param msg		Sijaintiolion komponenttitunnuksen sisältävä viesti
 		@param sender	Sijaintiolion osoite
 		*/
-		void initialize(const Component::ComponentID &msg, Theron::Address sender);
+		void initialize(const GameObject::ComponentFound &msg, Theron::Address sender);
 
 		/** Suorittaa tarvittavan laskennan ruudun piirtoa varten
 		@param msg		Renderöintipyyntö

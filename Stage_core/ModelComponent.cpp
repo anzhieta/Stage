@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "ModelComponent.h"
+#include <LogActor.h>
 
 using namespace stage;
 
@@ -7,13 +8,20 @@ using namespace stage;
 ModelComponent::ModelComponent(Theron::Framework& fw, stage_common::Model* mod, Theron::Address owner) : Component(fw, owner), mod(mod){
 	RegisterHandler(this, &ModelComponent::initialize);
 	//Haetaan isäntäolion sijaintikomponentti, jotta malli voidaan piirtää oikeaan paikkaan
-	Send(GameObject::GetComponent(TRANSFORM_ID, this->GetAddress()), owner);
+	uint64_t msgid = tracker.getNextID();
+	EventContext& ev = tracker.addContext(0, msgid, Theron::Address::Null());
+	ev.finalize = [](){};
+	ev.error = [this](){
+		LOGMSG("Error: Attempted to initialize model component, but owner does not have a transform");
+	};
+	Send(GameObject::GetComponent(msgid, TRANSFORM_ID, this->GetAddress()), owner);
 	RegisterHandler(this, &ModelComponent::completeRender);
 }
 
-void ModelComponent::initialize(const Component::ComponentID& msg, Theron::Address sender){
-	if (!msg.id == TRANSFORM_ID) return;
-	transform = sender;
+void ModelComponent::initialize(const GameObject::ComponentFound& msg, Theron::Address sender){
+	if (!tracker.contains(msg.id)) return;
+	tracker.decrement(msg.id);
+	transform = msg.component;
 	DeregisterHandler(this, &ModelComponent::initialize);
 	init = true;
 }

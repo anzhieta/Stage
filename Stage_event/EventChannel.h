@@ -5,7 +5,6 @@
 #include "stdafx.h"
 #include <list>
 #include "CoreEvents.h"
-#include "ResponseTracker.h"
 #include <iostream>
 
 namespace stage {

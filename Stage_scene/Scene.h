@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include "GameObject.h"
-#include <ResponseTracker.h>
 #include <EventChannel.h>
 #include <CoreEvents.h>
 #include <iostream>
