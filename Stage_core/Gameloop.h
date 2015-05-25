@@ -65,6 +65,7 @@ namespace stage {
 		*/
 		stage_common::Camera* activeCam;
 
+
 		/** Pelisilmukan aikaskaala (kuinka nopeasti simulaatiota suoritetaan)
 		*/
 		float timescale = 1;

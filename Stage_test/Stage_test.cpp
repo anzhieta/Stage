@@ -129,7 +129,7 @@ public:
 		ev.error = [this](){
 			LOGMSG("Error: Attempted to initialize vibrate component, but owner does not have a transform");
 		};
-		Send(GameObject::GetComponent(msgid, TRANSFORM_ID, this->GetAddress()), owner);
+		Send(GameObject::GetComponent(msgid, TRANSFORM_ID), owner);
 	}
 	
 	virtual int id(){
@@ -177,18 +177,18 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << "setup1\n";
 	//std::cin >> c;
 
-	Scene::NewObject obj1;
-	Scene::NewObject obj2;
-	Scene::NewObject obj3;
+	Scene::NewObject obj1(0, Theron::Address::Null());
+	Scene::NewObject obj2(0, Theron::Address::Null());;
+	Scene::NewObject obj3(0, Theron::Address::Null());;
 	Theron::Address whatev;
 
-	fw.Send(Scene::CreateObject(rec.GetAddress()), rec.GetAddress(), sc);
+	fw.Send(Scene::CreateObject(0), rec.GetAddress(), sc);
 	rec.Wait();
 	catcher.Pop(obj1, whatev);
-	fw.Send(Scene::CreateObject(rec.GetAddress()), rec.GetAddress(), sc);
+	fw.Send(Scene::CreateObject(0), rec.GetAddress(), sc);
 	rec.Wait();
 	catcher.Pop(obj2, whatev);
-	fw.Send(Scene::CreateObject(rec.GetAddress()), rec.GetAddress(), sc);
+	fw.Send(Scene::CreateObject(0), rec.GetAddress(), sc);
 	rec.Wait();
 	catcher.Pop(obj3, whatev);
 

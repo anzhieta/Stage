@@ -14,7 +14,7 @@ ModelComponent::ModelComponent(Theron::Framework& fw, stage_common::Model* mod, 
 	ev.error = [this](){
 		LOGMSG("Error: Attempted to initialize model component, but owner does not have a transform");
 	};
-	Send(GameObject::GetComponent(msgid, TRANSFORM_ID, this->GetAddress()), owner);
+	Send(GameObject::GetComponent(msgid, TRANSFORM_ID), owner);
 	RegisterHandler(this, &ModelComponent::completeRender);
 }
 

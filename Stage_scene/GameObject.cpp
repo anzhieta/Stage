@@ -3,9 +3,20 @@
 #include "Component.h"
 #include <boost\any.hpp>
 #include <iostream>
+#include <LogActor.h>
 
 using namespace stage;
 typedef std::list<Component*>::iterator comp_iterator;
+
+GameObject::GameObject(Theron::Framework &fw) : Theron::Actor(fw), tracker(fw, this->GetAddress()) {
+	RegisterHandler(this, &GameObject::update);
+	RegisterHandler(this, &GameObject::render);
+	RegisterHandler(this, &GameObject::addComponent);
+	RegisterHandler(this, &GameObject::getComponent);
+	RegisterHandler(this, &GameObject::allDone);
+	RegisterHandler(this, &GameObject::error);
+	RegisterHandler(this, &GameObject::componentFound);
+}
 
 GameObject::~GameObject(){
 	for (comp_iterator i = components.begin(); i != components.end(); i++){
@@ -18,7 +29,7 @@ void GameObject::addComponent(const AddComponent &msg, Theron::Address from){
 }
 void GameObject::getComponent(const GetComponent &msg, Theron::Address from){
 	uint64_t id = tracker.getNextID();
-	GetComponent newMsg(id, msg.compID, msg.requester);
+	GetComponent newMsg(id, msg.compID);
 	for (comp_iterator i = components.begin(); i != components.end(); i++){
 		tracker.trackedSend<GetComponent>(msg.id, newMsg, (*i)->GetAddress(), from);
 	}
@@ -69,5 +80,6 @@ void GameObject::allDone(const AllDone &msg, Theron::Address from){
 }
 
 void GameObject::error(const Error &msg, Theron::Address from){
+	LOGERR(std::string("Warning: component ") + from.AsString() + " reported error during processing");
 	if (tracker.contains(msg.id)) tracker.decrement(msg.id);
 }

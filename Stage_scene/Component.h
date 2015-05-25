@@ -12,13 +12,25 @@ namespace stage{
 	
 	/** Abstrakti pelimoottorikomponenttien yliluokka.
 	Kaikki pelimoottoreihin liitettävät komponentit perivät tämän luokan.
+	Ottaa vastaan viestit:
+	Update (palauttaa AllDone)
+	Render (palauttaa AllDone)
+	Component::GetComponentID (palauttaa Component::ComponentID)
+	GameObject::GetComponent (palauttaa GameObject::ComponentFound tai AllDone)
 	*/
 	class Component : public Theron::Actor{
 	public:
+		/** Viesti, joka kertoo lähettäjänsä tyyppitunnuksen
+		*/
 		struct ComponentID : Event{
+			/** Lähettäjän tyyppitunnus
+			*/
 			unsigned int compID;
 			ComponentID(uint64_t id, int compID) : Event(id), compID(compID){}
 		};
+
+		/** Viesti, jolla pyydetään komponenttia lähettämään tyyppitunnuksensa
+		*/
 		struct GetComponentID : Event{
 			GetComponentID(uint64_t id) : Event(id){}
 		};
@@ -26,46 +38,70 @@ namespace stage{
 		/** Luo uuden pelimoottorikomponentin.
 		HUOM: luo komponenttiolio aina new:llä äläkä tuhoa sitä itse.
 		Komponenttiolio tuhotaan aina automaattisesti, kun sen omistava peliolio tuhotaan.
+		@param fw		Komponenttia hallinnoiva Theron::Framework
+		@param owner	Komponentin omistava peliolio
 		*/
-		Component(Theron::Framework &fw, Theron::Address owner) : Theron::Actor(fw), owner(owner), tracker(fw, this->GetAddress()){
-			RegisterHandler(this, &Component::update);
-			RegisterHandler(this, &Component::render);
-			RegisterHandler(this, &Component::isType);
-			RegisterHandler(this, &Component::allDone);
-			RegisterHandler(this, &Component::error);
-			Send(GameObject::AddComponent(this, tracker.getNextID()), owner);
-			RegisterHandler(this, &Component::getId);
-			std::cout << "address " << this->GetAddress().AsInteger() << "\n";
-		}
+		Component(Theron::Framework &fw, Theron::Address owner);
 	protected:
+		/**	Komponentin omistava peliolio
+		*/
 		Theron::Address owner;
-		ContextTracker tracker;
-		virtual void update(const Update &up, Theron::Address from){
-			Send(AllDone(up.id), from);
-		}
-		virtual void render(const Render &rend, Theron::Address from){
-			Send(AllDone(rend.id), from);
-		}
 
-		virtual void isType(const GameObject::GetComponent &msg, Theron::Address from){
-			if (msg.compID == id()){
-				Send(GameObject::ComponentFound(msg.id, this->GetAddress()), from);
-			}
-			else Send(AllDone(msg.id), from);
-		}
-		virtual void getId(const GetComponentID &msg, Theron::Address from){
-			Send(ComponentID(msg.id, id()), from);
-		}
-		virtual void allDone(const AllDone& msg, Theron::Address from){
-			if (tracker.contains(msg.id)) tracker.decrement(msg.id);
-		}
-		virtual void error(const Error& msg, Theron::Address from){
-			if (tracker.contains(msg.id)){
-				tracker.getContext(msg.id).error();
-				tracker.remove(msg.id);
-			}
-		}
+		/** Komponentin tapahtumakontekstien tilaa ylläpitävä olio
+		*/
+		ContextTracker tracker;
+
+		/** Päivittää komponentin tilan.
+		Jos tämä metodi ylikirjoitetaan aliluokassa, komponentti suorittaa laskentaa
+		pelisilmukan päivitysvaiheessa.
+		@param up	Päivityspyyntö
+		@param from	Pyynnön lähettäjä
+		*/
+		virtual void update(const Update &up, Theron::Address from);
+
+		/** Piirtää komponentin ruudulle.
+		Jos tämä metodi ylikirjoitetaan aliluokassa, komponentti suorittaa laskentaa
+		pelisilmukan piirtovaiheessa.
+		@param up	Piirtopyyntö
+		@param from	Pyynnön lähettäjä
+		*/
+		virtual void render(const Render &rend, Theron::Address from);
+
+		/** Oletuskäsittelijä AllDone-viesteille (laskee viestiin liittyvän kontekstin
+		odotettujen vastausten määrää yhdellä)
+		Voidaan ylikirjoittaa aliluokassa.
+		@param msg	AllDone-viesti
+		@param from	Viestin lähettäjä
+		*/
+		virtual void allDone(const AllDone& msg, Theron::Address from);
+
+		/** Oletuskäsittelijä Error-viesteille (kutsuu viestiin liittyvän kontekstin
+		Error-metodia ja poistaa kontekstin)
+		Voidaan ylikirjoittaa aliluokassa.
+		@param msg	Error-viesti
+		@param from	Viestin lähettäjä
+		*/
+		virtual void error(const Error& msg, Theron::Address from);
+
+		/** Abstrakti metodi, joka palauttaa komponentin tyyppitunnuksen
+		@returns	Komponentin tyypistä riippuva tunnusluku
+		*/
 		virtual int id() = 0;
+
+	private:
+		/** Kysyy komponentilta, onko se tiettyä tyyppiä
+		@param msg	Etsityn tyypin tyyppitunnuksen sisältävä viesti
+		@param from	Viestin lähettäjä
+		Vastaa viestillä GameObject::ComponentFound jos tämä komponentti on etsittyä tyyppiä,
+		muutoin viestillä AllDone
+		*/
+		void isType(const GameObject::GetComponent &msg, Theron::Address from);
+
+		/** Kysyy komponentilta sen tyyppitunnusta
+		@param msg	Pyyntöviesti
+		@param from	Pyynnön lähettäjä
+		*/
+		void getId(const GetComponentID &msg, Theron::Address from);
 	};
 }
 

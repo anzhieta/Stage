@@ -21,6 +21,7 @@ Gameloop::Gameloop(std::string& windowName, int xres, int yres){
 	gc = new GraphicsControlActor(fw, windowName, xres, yres);
 	logger = new LogActor(fw);
 	SceneManager::globalManager = receiver.GetAddress();
+
 }
 
 Gameloop::~Gameloop(){
@@ -63,8 +64,11 @@ void Gameloop::stop(){
 void Gameloop::loop() {
 	Theron::Address sender;
 
-	//Placeholder-viesti catchereitä varten
-	AllDone ad(0);
+	//Placeholder-viestit catchereitä varten
+	AllDone adMSG(0);
+	SetActiveScene sasMSG(0,0);
+	CreateScene csMSG(0);
+
 	Theron::Address recAddress = receiver.GetAddress();
 	stage_common::Timer upTimer;	//Päivitysajastin
 	stage_common::Timer rendTimer;	//Piirtoajastin
@@ -80,10 +84,26 @@ void Gameloop::loop() {
 		uint64_t id = Event::generateID(recAddress, msgid++);
 		fw.Send(Update((float)loopTimer.lastTickTime() * timescale, id), recAddress, activeScene);
 		while (doneCatcher.Empty()){
-			//Odotetaan, kunnes laskenta päättyy
+			//Odotetaan, kunnes saadaan viesti
 			receiver.Wait();
+
+			//Luodaan uudet pelialueet
+			while (!createSceneCatcher.Empty()){
+				createSceneCatcher.Pop(csMSG, sender);
+				Theron::Address newScene = createScene();
+				fw.Send(NewScene(csMSG.id, scenes.size() - 1, newScene), recAddress, sender);
+			}
+
+			//Vaihdetaan pelialuetta
+			while (!setSceneCatcher.Empty()){
+				setSceneCatcher.Pop(sasMSG, sender);
+				if (setActiveScene(sasMSG.scene)){
+					fw.Send(AllDone(sasMSG.id), recAddress, sender);
+				}
+				else fw.Send(Error(sasMSG.id), recAddress, sender);
+			}
 		}
-		doneCatcher.Pop(ad, sender);
+		doneCatcher.Pop(adMSG, sender);
 		upTimer.stop();
 
 		//Poistovaihe
@@ -97,13 +117,15 @@ void Gameloop::loop() {
 		while (doneCatcher.Empty()){
 			receiver.Wait();
 		}
-		doneCatcher.Pop(ad, sender);
+		doneCatcher.Pop(adMSG, sender);
 		//Piirretään kuva ruudulle (tehtävä pääsäikeessä, koska OpenGL-kontekstit ovat säiekohtaisia)
 		gc->getRawController()->draw(*activeCam);
 		rendTimer.stop();
 
 		//Ylläpitovaihe
 		maintTimer.start();
+
+
 		//Tarkistetaan, pitääkö ohjelma sulkea
 		if (!abortCatcher.Empty()) stop();
 		if (gc->shouldClose()) stop();
