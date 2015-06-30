@@ -18,6 +18,7 @@
 #include <StaticGeometryComponent.h>
 #include "Plane.h"
 #include "Sphere.h"
+#include "CameraControlComponent.h"
 
 using namespace stage;
 
@@ -246,6 +247,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	fw.Send(CameraComponent::SetViewMatrix(0, View), adRec.GetAddress(), cam->GetAddress());
 	fw.Send(CameraComponent::SetProjectionMatrix(0, Projection), adRec.GetAddress(), cam->GetAddress());
 	loop.setActiveCamera(cam->getRawCamera());
+
+	CameraControlComponent* camcc = new CameraControlComponent(fw, obj1.object, tr1->GetAddress());
 
 	/*Vibrate* v2 = new Vibrate(fw, obj2.object);
 	Vibrate* v3 = new Vibrate(fw, obj3.object);*/

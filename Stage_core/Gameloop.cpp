@@ -9,6 +9,7 @@
 #include <CoreEvents.h>
 #include "CameraComponent.h"
 #include <Timer.h>
+#include <Input.h>
 
 
 using namespace stage;
@@ -124,7 +125,7 @@ void Gameloop::loop() {
 
 		//Ylläpitovaihe
 		maintTimer.start();
-
+		stage_common::Input::getSingleton().update(false);
 
 		//Tarkistetaan, pitääkö ohjelma sulkea
 		if (!abortCatcher.Empty()) stop();
