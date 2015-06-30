@@ -16,12 +16,14 @@ namespace stage{
 			RegisterHandler(this, &StaticGeometryComponent::finishSphereSetup);
 			uint64_t id = setup();
 			tracker.setVariable<float>(id, 0, radius);
+			Send(Transform::GetPosition(id), transform);
 		}
 		StaticGeometryComponent(Theron::Framework& fw, Theron::Address owner, glm::vec3 size, Theron::Address transform,
 			Theron::Address collisionEventChannel) : Component(fw, owner), transform(transform), collisionEventChannel(collisionEventChannel){
 			RegisterHandler(this, &StaticGeometryComponent::finishAABBSetup);
 			uint64_t id = setup();
 			tracker.setVariable<glm::vec3>(id, 0, size);
+			Send(Transform::GetPosition(id), transform);
 		}
 				
 
@@ -87,7 +89,7 @@ namespace stage{
 			EventContext& context = tracker.addContext(0, id, Theron::Address::Null());
 			context.finalize = [](){};
 			context.error = context.finalize;
-			Send(Transform::GetPosition(id), transform);
+			
 			Send(EventChannel<PhysicsComponent::CollisionCheck>::RegisterRecipient(this->GetAddress()), collisionEventChannel);
 			return id;
 		}

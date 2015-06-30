@@ -19,157 +19,66 @@
 #include "Plane.h"
 #include "Sphere.h"
 #include "CameraControlComponent.h"
+#include "GameObjectFactory.h"
+#include <fstream>
 
 using namespace stage;
 
-static std::vector<glm::vec3> vertices = {
-	glm::vec3(-1.0f, -1.0f, -1.0f),
-	glm::vec3(-1.0f, -1.0f, 1.0f),
-	glm::vec3(-1.0f, 1.0f, 1.0f),
-	glm::vec3(1.0f, 1.0f, -1.0f), // triangle 2 : begin
-	glm::vec3(-1.0f, -1.0f, -1.0f),
-	glm::vec3(-1.0f, 1.0f, -1.0f), // triangle 2 : end
-	glm::vec3(1.0f, -1.0f, 1.0f),
-	glm::vec3(-1.0f, -1.0f, -1.0f),
-	glm::vec3(1.0f, -1.0f, -1.0f),
-	glm::vec3(1.0f, 1.0f, -1.0f),
-	glm::vec3(1.0f, -1.0f, -1.0f),
-	glm::vec3(-1.0f, -1.0f, -1.0f),
-	glm::vec3(-1.0f, -1.0f, -1.0f),
-	glm::vec3(-1.0f, 1.0f, 1.0f),
-	glm::vec3(-1.0f, 1.0f, -1.0f),
-	glm::vec3(1.0f, -1.0f, 1.0f),
-	glm::vec3(-1.0f, -1.0f, 1.0f),
-	glm::vec3(-1.0f, -1.0f, -1.0f),
-	glm::vec3(-1.0f, 1.0f, 1.0f),
-	glm::vec3(-1.0f, -1.0f, 1.0f),
-	glm::vec3(1.0f, -1.0f, 1.0f),
-	glm::vec3(1.0f, 1.0f, 1.0f),
-	glm::vec3(1.0f, -1.0f, -1.0f),
-	glm::vec3(1.0f, 1.0f, -1.0f),
-	glm::vec3(1.0f, -1.0f, -1.0f),
-	glm::vec3(1.0f, 1.0f, 1.0f),
-	glm::vec3(1.0f, -1.0f, 1.0f),
-	glm::vec3(1.0f, 1.0f, 1.0f),
-	glm::vec3(1.0f, 1.0f, -1.0f),
-	glm::vec3(-1.0f, 1.0f, -1.0f),
-	glm::vec3(1.0f, 1.0f, 1.0f),
-	glm::vec3(-1.0f, 1.0f, -1.0f),
-	glm::vec3(-1.0f, 1.0f, 1.0f),
-	glm::vec3(1.0f, 1.0f, 1.0f),
-	glm::vec3(-1.0f, 1.0f, 1.0f),
-	glm::vec3(1.0f, -1.0f, 1.0f)
-};
-static std::vector<glm::vec3> colors = {
-	glm::vec3(0.583f, 0.771f, 0.014f),
-	glm::vec3(0.609f, 0.115f, 0.436f),
-	glm::vec3(0.327f, 0.483f, 0.844f),
-	glm::vec3(0.822f, 0.569f, 0.201f),
-	glm::vec3(0.435f, 0.602f, 0.223f),
-	glm::vec3(0.310f, 0.747f, 0.185f),
-	glm::vec3(0.597f, 0.770f, 0.761f),
-	glm::vec3(0.559f, 0.436f, 0.730f),
-	glm::vec3(0.359f, 0.583f, 0.152f),
-	glm::vec3(0.483f, 0.596f, 0.789f),
-	glm::vec3(0.559f, 0.861f, 0.639f),
-	glm::vec3(0.195f, 0.548f, 0.859f),
-	glm::vec3(0.014f, 0.184f, 0.576f),
-	glm::vec3(0.771f, 0.328f, 0.970f),
-	glm::vec3(0.406f, 0.615f, 0.116f),
-	glm::vec3(0.676f, 0.977f, 0.133f),
-	glm::vec3(0.971f, 0.572f, 0.833f),
-	glm::vec3(0.140f, 0.616f, 0.489f),
-	glm::vec3(0.997f, 0.513f, 0.064f),
-	glm::vec3(0.945f, 0.719f, 0.592f),
-	glm::vec3(0.543f, 0.021f, 0.978f),
-	glm::vec3(0.279f, 0.317f, 0.505f),
-	glm::vec3(0.167f, 0.620f, 0.077f),
-	glm::vec3(0.347f, 0.857f, 0.137f),
-	glm::vec3(0.055f, 0.953f, 0.042f),
-	glm::vec3(0.714f, 0.505f, 0.345f),
-	glm::vec3(0.783f, 0.290f, 0.734f),
-	glm::vec3(0.722f, 0.645f, 0.174f),
-	glm::vec3(0.302f, 0.455f, 0.848f),
-	glm::vec3(0.225f, 0.587f, 0.040f),
-	glm::vec3(0.517f, 0.713f, 0.338f),
-	glm::vec3(0.053f, 0.959f, 0.120f),
-	glm::vec3(0.393f, 0.621f, 0.362f),
-	glm::vec3(0.673f, 0.211f, 0.457f),
-	glm::vec3(0.820f, 0.883f, 0.371f),
-	glm::vec3(0.982f, 0.099f, 0.879f)
-};
-
-
-class Testprinter : public Component {
-public:
-	Testprinter(Theron::Framework& fw, Theron::Address owner) : Component(fw, owner), owner(owner){
-	}
-protected:
-	void update(const Update &up, Theron::Address from){
-		std::cout << "object " << owner.AsInteger() << " updating after " << up.elapsedMS << " ms." << std::endl;
-		finish(up, from);
-	}
-	void render(const Render &rend, Theron::Address from){
-		std::cout << "object " << owner.AsInteger() << " rendering." << std::endl;
-		finish(rend, from);
-	}
-	void finish(Event ev, Theron::Address from){
-		Send(AllDone(ev.id), from);
-	}
-	virtual int id(){
-		return 99;
-	}
-private:
-	Theron::Address owner;
-};
-
-class Vibrate : public Component {
-public:
-	Vibrate(Theron::Framework& fw, Theron::Address owner) : Component(fw, owner){
-		RegisterHandler(this, &Vibrate::initialize);
-		uint64_t msgid = tracker.getNextID();
-		EventContext& ev = tracker.addContext(0, msgid, Theron::Address::Null());
-		ev.finalize = [](){};
-		ev.error = [this](){
-			LOGMSG("Error: Attempted to initialize vibrate component, but owner does not have a transform");
-		};
-		Send(GameObject::GetComponent(msgid, TRANSFORM_ID), owner);
-	}
-
-	virtual int id(){
-		return 99;
-	}
-private:
-	void update(const Update& msg, Theron::Address sender){
-		if (!init) Send(AllDone(msg.id), sender);
-		float rand1 = (float)(std::rand() % 100) / 1000 - 0.05;
-		float rand2 = (float)(std::rand() % 100) / 1000 - 0.05;
-		float rand3 = (float)(std::rand() % 100) / 1000 - 0.05;
-		uint64_t id = tracker.getNextID();
-		tracker.addContext(msg.id, id, sender);
-		Send(Transform::Translate(id, glm::vec3(rand1, rand2, rand3)), transform);
-	}
-	void initialize(const GameObject::ComponentFound &msg, Theron::Address sender){
-		if (!tracker.contains(msg.id)) return;
-		tracker.decrement(msg.id);
-		DeregisterHandler(this, &Vibrate::initialize);
-		transform = msg.component;
-		init = true;
-	}
-
-	bool init = false;
-	Theron::Address transform;
-};
 
 int _tmain(int argc, _TCHAR* argv[])
 {
 	char c;
+	int SCALE = 10;
+	int SPHERES = 5;
+	std::string configfile;
+	std::ifstream configStream("config.ini", std::ios::in);
 
-	stage::Gameloop loop(std::string("test"), 640, 480);
+	if (configStream.is_open())
+	{
+		std::string line = "";
+		std::string start, end;
+		int delimiterPos;
+		while (getline(configStream, line)){
+			delimiterPos = line.find("=");
+			if (delimiterPos == std::string::npos){
+				std::cerr << "Invalid configuration parameter " << start << std::endl;
+				continue;
+			}
+			start = line.substr(0, delimiterPos);
+			end = line.substr(delimiterPos + 1);
+			if (start == "SCALE"){
+				try{
+					SCALE = std::stoi(end);
+					if (SCALE < 5) SCALE = 5;
+				}
+				catch (...){
+					std::cerr << "Error parsing configuration parameter SCALE" << std::endl;
+					continue;
+				}
+			}
+			else if (start == "SPHERES"){
+				try{
+					SPHERES = std::stoi(end);
+					if (SPHERES < 1) SPHERES = 1;
+				}
+				catch (...){
+					std::cerr << "Error parsing configuration parameter SCALE" << std::endl;
+					continue;
+				}
+			}
+			else std::cerr << "Unknown configuration parameter " << start << std::endl;
+		}
+		configStream.close();
+	}
+	else std::cerr << "Warning: config.ini not found, falling back to default parameters" << std::endl;
+
+	stage::Gameloop loop(std::string("Stage engine demo"), 640, 480);
 	Theron::Framework& fw = loop.getFramework();
 	Theron::Address sc = loop.createScene();
 
 	loop.setActiveScene(0);
+
+	EventChannel<PhysicsComponent::CollisionCheck> collChannel(fw);
 
 	Theron::Receiver rec;
 	Theron::Receiver adRec;
@@ -178,82 +87,74 @@ int _tmain(int argc, _TCHAR* argv[])
 	rec.RegisterHandler(&catcher, &Theron::Catcher<Scene::NewObject>::Push);
 	adRec.RegisterHandler(&adCatcher, &Theron::Catcher<AllDone>::Push);
 
-	std::cout << "setup1\n";
-	//std::cin >> c;
 
-	Scene::NewObject obj1(0, Theron::Address::Null());
-	Scene::NewObject obj2(0, Theron::Address::Null());
-	Scene::NewObject obj3(0, Theron::Address::Null());
-	Scene::NewObject obj4(0, Theron::Address::Null());
-	Theron::Address whatev;
+	Scene::NewObject camobject(0, Theron::Address::Null());
+	Theron::Address temp;
 
 	fw.Send(Scene::CreateObject(0), rec.GetAddress(), sc);
 	rec.Wait();
-	catcher.Pop(obj1, whatev);
-	fw.Send(Scene::CreateObject(0), rec.GetAddress(), sc);
-	rec.Wait();
-	catcher.Pop(obj2, whatev);
-	fw.Send(Scene::CreateObject(0), rec.GetAddress(), sc);
-	rec.Wait();
-	catcher.Pop(obj3, whatev);
-	fw.Send(Scene::CreateObject(0), rec.GetAddress(), sc);
-	rec.Wait();
-	catcher.Pop(obj4, whatev);
+	catcher.Pop(camobject, temp);
 
-	std::cout << "setup2\n";
-	//std::cin >> c;
+	Transform* tr1 = new Transform(fw, camobject.object);
+	fw.Send(Transform::SetMatrix(0, glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -SCALE * 2))), adRec.GetAddress(), tr1->GetAddress());
 
-	/*Testprinter* print1 = new Testprinter(fw, obj1.object);
-	Testprinter* print2 = new Testprinter(fw, obj2.object);
-	Testprinter* print3 = new Testprinter(fw, obj3.object);*/
-	Transform* tr1 = new Transform(fw, obj1.object);
-	Transform* tr2 = new Transform(fw, obj2.object);
-	Transform* tr3 = new Transform(fw, obj3.object);
-	Transform* tr4 = new Transform(fw, obj4.object);
-	fw.Send(Transform::SetMatrix(0, glm::mat4(1.0f)), adRec.GetAddress(), tr1->GetAddress());
-	fw.Send(Transform::Translate(0, glm::vec3(2, 0, -5)), adRec.GetAddress(), tr2->GetAddress());
-	fw.Send(Transform::Translate(0, glm::vec3(-1, 0, -5)), adRec.GetAddress(), tr3->GetAddress());
-	fw.Send(Transform::Translate(0, glm::vec3(0, -2, -5)), adRec.GetAddress(), tr4->GetAddress());
-
-	EventChannel<PhysicsComponent::CollisionCheck> collChannel(fw);
-
-	PhysicsComponent* p2 = new PhysicsComponent(fw, obj2.object, tr2->GetAddress(), 1.0f, glm::vec3(-0.001, -0.001, 0), 1.0, collChannel.GetAddress());
-	PhysicsComponent* p3 = new PhysicsComponent(fw, obj3.object, tr3->GetAddress(), 1.0f, glm::vec3(0.001, 0, 0), 1.0, collChannel.GetAddress());
-
-	StaticGeometryComponent* p4 = new StaticGeometryComponent(fw, obj4.object, glm::vec3(5, 0, 5), tr4->GetAddress(), collChannel.GetAddress());
-
-	std::cout << "setup3\n";
-	//std::cin >> c;
-
-	stage_common::SimpleShader ss;
-	stage_common::Model mod(generate_sphere_vertices(), generate_sphere_colors(), &ss);
-	stage_common::Model modplane(generate_plane_vertices(), generate_plane_colors(), &ss);
-
-	std::cout << "setup4\n";
-	//std::cin >> c;
-
-	ModelComponent* mod2 = new ModelComponent(fw, &mod, obj2.object);
-	ModelComponent* mod3 = new ModelComponent(fw, &mod, obj3.object);
-	ModelComponent* mod4 = new ModelComponent(fw, &modplane, obj4.object);
-
-	glm::mat4 Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+	glm::mat4 Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, SCALE * 10.0f);
 	glm::mat4 View = glm::lookAt(
-		glm::vec3(0, 0, 5), // Camera is at (4,3,3), in World Space
-		glm::vec3(0, 0, 0), // and looks at the origin
-		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
-		);
+		glm::vec3(0, 0, -SCALE * 2),
+		glm::vec3(0, 0, 0),
+		glm::vec3(0, 1, 0)
+	);
 
-	CameraComponent* cam = new CameraComponent(fw, obj1.object);
+	CameraComponent* cam = new CameraComponent(fw, camobject.object);
 	fw.Send(CameraComponent::SetViewMatrix(0, View), adRec.GetAddress(), cam->GetAddress());
 	fw.Send(CameraComponent::SetProjectionMatrix(0, Projection), adRec.GetAddress(), cam->GetAddress());
 	loop.setActiveCamera(cam->getRawCamera());
 
-	CameraControlComponent* camcc = new CameraControlComponent(fw, obj1.object, tr1->GetAddress());
+	CameraControlComponent* camcc = new CameraControlComponent(fw, camobject.object, tr1->GetAddress());
 
-	/*Vibrate* v2 = new Vibrate(fw, obj2.object);
-	Vibrate* v3 = new Vibrate(fw, obj3.object);*/
+	GameObjectFactory& factory = GameObjectFactory::getSingleton();
 
-	std::cout << "setup5\n";
+	glm::mat4 bottompos;
+	bottompos = glm::scale(bottompos, glm::vec3(SCALE, 1, SCALE));
+	bottompos = glm::translate(bottompos, glm::vec3(0, -SCALE, 0));
+	factory.constructWall(fw, sc, bottompos, glm::vec3(SCALE, 0, SCALE), collChannel.GetAddress());
+
+	glm::mat4 toppos;
+	toppos = glm::rotate(toppos, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	toppos = glm::translate(toppos, glm::vec3(0, -SCALE, 0));
+	toppos = glm::scale(toppos, glm::vec3(SCALE, 1, SCALE));
+	factory.constructWall(fw, sc, toppos, glm::vec3(SCALE, 0, SCALE), collChannel.GetAddress());
+
+	glm::mat4 leftpos;
+	leftpos = glm::rotate(leftpos, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	leftpos = glm::translate(leftpos, glm::vec3(0, -SCALE, 0));
+	leftpos = glm::scale(leftpos, glm::vec3(SCALE, 1, SCALE));
+	factory.constructWall(fw, sc, leftpos, glm::vec3(0, SCALE, SCALE), collChannel.GetAddress());
+
+	glm::mat4 rightpos;
+	rightpos = glm::rotate(rightpos, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	rightpos = glm::translate(rightpos, glm::vec3(0, -SCALE, 0));
+	rightpos = glm::scale(rightpos, glm::vec3(SCALE, 1, SCALE));
+	factory.constructWall(fw, sc, rightpos, glm::vec3(0, SCALE, SCALE), collChannel.GetAddress());
+
+	glm::mat4 backpos;
+	backpos = glm::rotate(backpos, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	backpos = glm::translate(backpos, glm::vec3(0, -SCALE, 0));
+	backpos = glm::scale(backpos, glm::vec3(SCALE, 1, SCALE));
+	factory.constructWall(fw, sc, backpos, glm::vec3(SCALE, SCALE, 0), collChannel.GetAddress());
+
+	glm::mat4 frontpos;
+	frontpos = glm::rotate(frontpos, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	frontpos = glm::translate(frontpos, glm::vec3(0, -SCALE, 0));
+	frontpos = glm::scale(frontpos, glm::vec3(SCALE, 1, SCALE));
+	factory.constructWall(fw, sc, frontpos, glm::vec3(SCALE, SCALE, 0), collChannel.GetAddress());
+
+	for (int i = 0; i < SPHERES; i++){
+		factory.constructRandomSphere(fw, sc, glm::vec3(SCALE - 1, SCALE - 1, SCALE - 1), collChannel.GetAddress());
+	}
+
+
+
 	loop.start();
 
 	std::cin >> c;

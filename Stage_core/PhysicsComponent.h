@@ -52,6 +52,7 @@ namespace stage{
 			RegisterHandler(this, &PhysicsComponent::finishSphereSetup);
 			uint64_t id = setup();
 			tracker.setVariable<float>(id, 0, radius);
+			Send(Transform::GetPosition(id), transform);
 		}
 		PhysicsComponent(Theron::Framework& fw, Theron::Address owner, Theron::Address transform, 
 			glm::vec3 size, glm::vec3 initialV, float mass, Theron::Address collisionEventChannel) :
@@ -60,6 +61,7 @@ namespace stage{
 			RegisterHandler(this, &PhysicsComponent::finishAABBSetup);
 			uint64_t id = setup();
 			tracker.setVariable<glm::vec3>(id, 0, size);
+			Send(Transform::GetPosition(id), transform);
 		}
 
 		~PhysicsComponent(){
@@ -90,7 +92,7 @@ namespace stage{
 			EventContext& context = tracker.addContext(0, id, Theron::Address::Null());
 			context.finalize = [](){};
 			context.error = context.finalize;
-			Send(Transform::GetPosition(id), transform);
+			
 			Send(EventChannel<CollisionCheck>::RegisterRecipient(this->GetAddress()), collisionEventChannel);
 			return id;
 		}
