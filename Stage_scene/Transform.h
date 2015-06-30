@@ -33,11 +33,28 @@ namespace stage{
 			Matrix(uint64_t msgID, glm::mat4& mt) : matrix(mt), Event(msgID){}
 		};
 
+		/** Viesti, joka ilmoittaa Transform-olion sijainnin vastauksena GetMatrix-viestiin
+		*/
+		struct Position : public Event {
+			/** 4x4-matriisi, joka kertoo peliolion sijainnin 3D-maailmassa
+			*/
+			glm::vec3 position;
+			Position(glm::vec3& pos, Theron::Address originator, uint32_t msgID) : position(pos), Event(originator, msgID){}
+			Position(uint64_t msgID, glm::vec3 pos) : position(pos), Event(msgID){}
+		};
+
 		/** Viesti, jolla pyydetään Transform-komponenttia lähettämään tiedon nykyisestä tilastaan
 		*/
 		struct GetMatrix : public Event {
 			GetMatrix(Theron::Address originator, uint32_t msgID) : Event(originator, msgID){}
 			GetMatrix(uint64_t msgID) : Event(msgID){}
+		};
+
+		/** Viesti, jolla pyydetään Transform-komponenttia lähettämään nykyisen sijaintinsa
+		*/
+		struct GetPosition : public Event {
+			GetPosition(Theron::Address originator, uint32_t msgID) : Event(originator, msgID){}
+			GetPosition(uint64_t msgID) : Event(msgID){}
 		};
 
 		/** Viesti, jolla pyydetään Transform-komponenttia asettamaan itselleen uusi tila
@@ -81,6 +98,12 @@ namespace stage{
 		@param sender	Pyynnön lähettäjä
 		*/
 		void getMatrix(const GetMatrix& msg, Theron::Address sender);
+
+		/** Hakee tämän komponentin sijaintia pelimaailmassa kuvaavan vektorin
+		@param msg		Sijainnin hakupyyntö
+		@param sender	Pyynnön lähettäjä
+		*/
+		void getPosition(const GetPosition& msg, Theron::Address sender);
 
 		/** Asettaa tämän komponentin sisäistä tilaa kuvaavan matriisin
 		@param msg		Tilan muutospyyntö

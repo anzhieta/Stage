@@ -11,19 +11,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B277C71D-8C47-4828-BDDE-10F7030217CF}</ProjectGuid>
+    <ProjectGuid>{C0982421-2760-4121-AE0F-E9A32DFC41DC}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Stage_core</RootNamespace>
+    <RootNamespace>Stage_demo</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -40,20 +40,25 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_physics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_utilities;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_graphics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_scene;D:\theron\2013\Theron-6.00.02\Include;$(IncludePath)</IncludePath>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_utilities;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_physics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_scene;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_core;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_graphics;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\boost_1_58\boost_1_58_0;D:\glm\glm;D:\glfw\glfw-3.1.bin.WIN32\include;D:\glew\glew-1.12.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\boost_1_58\boost_1_58_0;D:\theron\Theron-6.00.02\Include;D:\glm\glm;D:\glfw\glfw-3.1.bin.WIN32\include;D:\glew\glew-1.12.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>D:\theron\2013\Theron-6.00.02\Bin\Theron.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_core.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_event.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_scene.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_common_graphics.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_common_utilities.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_common_physics.lib;D:\glew\glew-1.12.0\lib\Release\Win32\glew32s.lib;D:\glfw\glfw-3.1.bin.WIN32\lib-vc2013\glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -63,11 +68,11 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
@@ -77,28 +82,17 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CameraComponent.h" />
-    <ClInclude Include="Gameloop.h" />
-    <ClInclude Include="GraphicsControlActor.h" />
-    <ClInclude Include="ModelComponent.h" />
-    <ClInclude Include="PhysicsComponent.h" />
+    <ClInclude Include="Plane.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CameraComponent.cpp" />
-    <ClCompile Include="Gameloop.cpp" />
-    <ClCompile Include="GraphicsControlActor.cpp" />
-    <ClCompile Include="ModelComponent.cpp" />
+    <ClCompile Include="Stage_demo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Stage_scene\Stage_scene.vcxproj">
-      <Project>{eb011ca3-4508-4283-8d00-21bdcee1c150}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

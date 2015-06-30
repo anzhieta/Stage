@@ -6,21 +6,12 @@
 #include <list>
 #include "CoreEvents.h"
 #include <iostream>
+#include "LogActor.h"
 
 namespace stage {
-
-	/** --DEPRECATED--
-	TODO: kontekstimalliin sopiva versio
-	*/
-
-#define REGISTER_CHANNEL(TYPE) \
-	RegisterHandler(this, &EventChannel<TYPE>::registerRecipient);\
-	RegisterHandler(this, &EventChannel<TYPE>::deregisterRecipient);\
-	RegisterHandler(this, &EventChannel<TYPE>::forward);\
-	RegisterHandler(this, &EventChannel<TYPE>::track);
-	
+		
 	template <class MessageType>
-	class EventChannel : public ResponseTracker{
+	class EventChannel : public Theron::Actor{
 	public:
 		struct RegisterRecipient {
 			RegisterRecipient(Theron::Address &rec) : recipient(rec){}
@@ -30,32 +21,48 @@ namespace stage {
 			DeregisterRecipient(Theron::Address &rec) : recipient(rec){}
 			Theron::Address recipient;
 		};
-		EventChannel(Theron::Framework& fw, Theron::Address owner) : ResponseTracker(fw, owner), recipients(){}
-		/*EventChannel(Theron::Framework &fw) : ResponseTracker(fw), recipients(){
+		EventChannel(Theron::Framework& fw) : Theron::Actor(fw), fw(fw), recipients(), tracker(fw, this->GetAddress()){
+			RegisterHandler(this, &EventChannel<MessageType>::forward<MessageType>);
 			RegisterHandler(this, &EventChannel<MessageType>::registerRecipient);
 			RegisterHandler(this, &EventChannel<MessageType>::deregisterRecipient);
-			RegisterHandler(this, &EventChannel<MessageType>::forward);
-		}*/
-		void registerRecipient(Theron::Address recipient){
-			recipients.push_back(recipient);
+			RegisterHandler(this, &EventChannel<MessageType>::allDone);
+			RegisterHandler(this, &EventChannel<MessageType>::error);
 		}
-		void deregisterRecipient(Theron::Address recipient){
-			for (std::list<Theron::Address>::const_iterator it = recipients.begin(); it != recipients.end(); it++){
-				if (*it == recipient) recipients.erase(it);
-			}
-		}
-		template <class MessageType>
-		void forward(const MessageType &msg, const Theron::Address from){
-			std::cout << "channel";
-			if (recipients.size() == 0) fw.Send(AllDone(msg.id), owner, from);
-			for (std::list<Theron::Address>::const_iterator it = recipients.begin(); it != recipients.end(); it++){
-				trackedSend(msg, *it, from);
-			}
-		}
+		
 	private:
 		std::list<Theron::Address> recipients;
+		ContextTracker tracker;
+		Theron::Framework& fw;
 
-		
+		template <class MessageType>
+		void forward(const MessageType &msg, const Theron::Address from){
+			int sent = 0;
+			for (std::list<Theron::Address>::const_iterator it = recipients.begin(); it != recipients.end(); it++){
+				if (*it != from){
+					tracker.trackedSend(msg.id, msg, *it, from);
+					sent++;
+				}
+			}
+			if (sent == 0){
+				fw.Send(AllDone(msg.id), this->GetAddress(), from);
+			}
+		}
+		void registerRecipient(const RegisterRecipient& msg, const Theron::Address from){
+			recipients.push_back(msg.recipient);
+		}
+		void deregisterRecipient(const DeregisterRecipient& msg, const Theron::Address from){
+			for (std::list<Theron::Address>::const_iterator it = recipients.begin(); it != recipients.end(); it++){
+				if (*it == msg.recipient) recipients.erase(it);
+			}
+		}
+		void allDone(const AllDone& msg, const Theron::Address from){
+			if (tracker.contains(msg.id)) tracker.decrement(msg.id);
+		}
+
+		void error(const Error &msg, Theron::Address from){
+			LOGERR(std::string("Warning: component ") + from.AsString() + " reported error during processing");
+			if (tracker.contains(msg.id)) tracker.decrement(msg.id);
+		}
 	};
 }
 
