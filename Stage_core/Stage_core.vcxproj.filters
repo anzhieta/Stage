@@ -39,6 +39,9 @@
     <ClInclude Include="PhysicsComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="StaticGeometryComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

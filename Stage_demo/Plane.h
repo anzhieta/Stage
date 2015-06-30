@@ -5,7 +5,7 @@
 #include <vector>
 #include <glm\glm.hpp>
 
-namespace stage_control{
+namespace stage{
 	static std::vector<glm::vec3> plane_vertices = {
 		glm::vec3(-1.000000, 0.000000, 1.000000),
 		glm::vec3(1.000000, 0.000000, 1.000000),

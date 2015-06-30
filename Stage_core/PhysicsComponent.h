@@ -35,6 +35,11 @@ namespace stage{
 				: Event(id), coll(coll), otherVelocity(otherVelocity), otherMass(otherMass){}
 		};
 
+		struct StaticCollision : public Event{
+			const stage_common::Collider& coll;
+			StaticCollision(uint64_t id, stage_common::Collider& coll) : Event(id), coll(coll){}
+		};
+
 		struct FinishCollision : public Event{
 			glm::vec3 velocityAdjustment;
 			FinishCollision(uint64_t id, glm::vec3 velAdj) : Event(id), velocityAdjustment(velAdj){}
@@ -79,6 +84,7 @@ namespace stage{
 		uint64_t setup(){
 			RegisterHandler(this, &PhysicsComponent::collisionCheck);
 			RegisterHandler(this, &PhysicsComponent::collisionDetected);
+			RegisterHandler(this, &PhysicsComponent::staticCollision);
 			RegisterHandler(this, &PhysicsComponent::finishCollision);
 			uint64_t id = tracker.getNextID();
 			EventContext& context = tracker.addContext(0, id, Theron::Address::Null());
@@ -141,6 +147,12 @@ namespace stage{
 				stage_common::Collisions::backOff(*collider, -1.0f * velocity, msg.coll);
 				Send(FinishCollision(msg.id, otherNewV - msg.otherVelocity), from);
 			}
+		}
+
+		void staticCollision(const StaticCollision& msg, Theron::Address from){
+			velocity = stage_common::Collisions::reflect(velocity, msg.coll.getCollisionNormal(*tempCollider, velocity));
+			stage_common::Collisions::backOff(*collider, -1.0f * velocity, msg.coll);
+			Send(AllDone(msg.id), from);
 		}
 
 		void finishCollision(const FinishCollision& msg, Theron::Address from){

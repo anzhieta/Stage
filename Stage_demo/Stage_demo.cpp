@@ -15,6 +15,9 @@
 #include <CameraComponent.h>
 #include <EventChannel.h>
 #include <PhysicsComponent.h>
+#include <StaticGeometryComponent.h>
+#include "Plane.h"
+#include "Sphere.h"
 
 using namespace stage;
 
@@ -178,8 +181,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	//std::cin >> c;
 
 	Scene::NewObject obj1(0, Theron::Address::Null());
-	Scene::NewObject obj2(0, Theron::Address::Null());;
-	Scene::NewObject obj3(0, Theron::Address::Null());;
+	Scene::NewObject obj2(0, Theron::Address::Null());
+	Scene::NewObject obj3(0, Theron::Address::Null());
+	Scene::NewObject obj4(0, Theron::Address::Null());
 	Theron::Address whatev;
 
 	fw.Send(Scene::CreateObject(0), rec.GetAddress(), sc);
@@ -191,6 +195,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	fw.Send(Scene::CreateObject(0), rec.GetAddress(), sc);
 	rec.Wait();
 	catcher.Pop(obj3, whatev);
+	fw.Send(Scene::CreateObject(0), rec.GetAddress(), sc);
+	rec.Wait();
+	catcher.Pop(obj4, whatev);
 
 	std::cout << "setup2\n";
 	//std::cin >> c;
@@ -201,27 +208,32 @@ int _tmain(int argc, _TCHAR* argv[])
 	Transform* tr1 = new Transform(fw, obj1.object);
 	Transform* tr2 = new Transform(fw, obj2.object);
 	Transform* tr3 = new Transform(fw, obj3.object);
+	Transform* tr4 = new Transform(fw, obj4.object);
 	fw.Send(Transform::SetMatrix(0, glm::mat4(1.0f)), adRec.GetAddress(), tr1->GetAddress());
 	fw.Send(Transform::Translate(0, glm::vec3(2, 0, -5)), adRec.GetAddress(), tr2->GetAddress());
 	fw.Send(Transform::Translate(0, glm::vec3(-1, 0, -5)), adRec.GetAddress(), tr3->GetAddress());
+	fw.Send(Transform::Translate(0, glm::vec3(0, -2, -5)), adRec.GetAddress(), tr4->GetAddress());
 
 	EventChannel<PhysicsComponent::CollisionCheck> collChannel(fw);
 
-	PhysicsComponent* p2 = new PhysicsComponent(fw, obj2.object, tr2->GetAddress(), 1.0f, glm::vec3(-0.001, 0, 0), 1.0, collChannel.GetAddress());
+	PhysicsComponent* p2 = new PhysicsComponent(fw, obj2.object, tr2->GetAddress(), 1.0f, glm::vec3(-0.001, -0.001, 0), 1.0, collChannel.GetAddress());
 	PhysicsComponent* p3 = new PhysicsComponent(fw, obj3.object, tr3->GetAddress(), 1.0f, glm::vec3(0.001, 0, 0), 1.0, collChannel.GetAddress());
 
+	StaticGeometryComponent* p4 = new StaticGeometryComponent(fw, obj4.object, glm::vec3(5, 0, 5), tr4->GetAddress(), collChannel.GetAddress());
 
 	std::cout << "setup3\n";
 	//std::cin >> c;
 
 	stage_common::SimpleShader ss;
-	stage_common::Model mod(vertices, colors, &ss);
+	stage_common::Model mod(generate_sphere_vertices(), generate_sphere_colors(), &ss);
+	stage_common::Model modplane(generate_plane_vertices(), generate_plane_colors(), &ss);
 
 	std::cout << "setup4\n";
 	//std::cin >> c;
 
 	ModelComponent* mod2 = new ModelComponent(fw, &mod, obj2.object);
 	ModelComponent* mod3 = new ModelComponent(fw, &mod, obj3.object);
+	ModelComponent* mod4 = new ModelComponent(fw, &modplane, obj4.object);
 
 	glm::mat4 Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 	glm::mat4 View = glm::lookAt(
