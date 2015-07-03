@@ -150,7 +150,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	factory.constructWall(fw, sc, frontpos, glm::vec3(SCALE, SCALE, 0), collChannel.GetAddress());
 
 	for (int i = 0; i < SPHERES; i++){
-		factory.constructRandomSphere(fw, sc, glm::vec3(SCALE - 1, SCALE - 1, SCALE - 1), collChannel.GetAddress());
+		factory.constructRandomSphere(fw, sc, glm::vec3(SCALE - 1, SCALE - 1, SCALE - 1), collChannel);
 	}
 
 

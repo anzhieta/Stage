@@ -9,6 +9,8 @@
 #include "LogActor.h"
 
 namespace stage {
+
+	//TODO threadsafe register/deregister
 		
 	template <class MessageType>
 	class EventChannel : public Theron::Actor{
@@ -27,6 +29,9 @@ namespace stage {
 			RegisterHandler(this, &EventChannel<MessageType>::deregisterRecipient);
 			RegisterHandler(this, &EventChannel<MessageType>::allDone);
 			RegisterHandler(this, &EventChannel<MessageType>::error);
+		}
+		const std::list<Theron::Address>& getRecipients(){
+			return recipients;
 		}
 		
 	private:

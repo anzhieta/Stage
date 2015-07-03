@@ -15,7 +15,7 @@ namespace stage{
 	class GameObjectFactory{
 	public:
 		Theron::Address constructRandomSphere(Theron::Framework& fw, Theron::Address scene, glm::vec3 maxCoordinates, 
-			Theron::Address collisionEventChannel){
+			EventChannel<PhysicsComponent::CollisionCheck>& collisionEventChannel){
 
 			Scene::NewObject obj(0, Theron::Address::Null());
 			Theron::Address temp;

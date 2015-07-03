@@ -46,7 +46,7 @@ namespace stage{
 		};
 
 		PhysicsComponent(Theron::Framework& fw, Theron::Address owner, Theron::Address transform, 
-			float radius, glm::vec3 initialV, float mass, Theron::Address collisionEventChannel) :
+			float radius, glm::vec3 initialV, float mass, EventChannel<CollisionCheck>& collisionEventChannel) :
 			Component(fw, owner), transform(transform), velocity(initialV), mass(mass), collisionEventChannel(collisionEventChannel){
 
 			RegisterHandler(this, &PhysicsComponent::finishSphereSetup);
@@ -55,7 +55,7 @@ namespace stage{
 			Send(Transform::GetPosition(id), transform);
 		}
 		PhysicsComponent(Theron::Framework& fw, Theron::Address owner, Theron::Address transform, 
-			glm::vec3 size, glm::vec3 initialV, float mass, Theron::Address collisionEventChannel) :
+			glm::vec3 size, glm::vec3 initialV, float mass, EventChannel<CollisionCheck>& collisionEventChannel) :
 			Component(fw, owner), transform(transform), velocity(initialV), mass(mass), collisionEventChannel(collisionEventChannel){
 
 			RegisterHandler(this, &PhysicsComponent::finishAABBSetup);
@@ -71,7 +71,7 @@ namespace stage{
 
 		virtual int id(){ return PHYSICSCOMPONENT_ID; }
 	private:
-		Theron::Address collisionEventChannel;
+		EventChannel<CollisionCheck>& collisionEventChannel;
 
 		stage_common::Collider* collider;
 		stage_common::Collider* tempCollider;
@@ -93,7 +93,7 @@ namespace stage{
 			context.finalize = [](){};
 			context.error = context.finalize;
 			
-			Send(EventChannel<CollisionCheck>::RegisterRecipient(this->GetAddress()), collisionEventChannel);
+			Send(EventChannel<CollisionCheck>::RegisterRecipient(this->GetAddress()), collisionEventChannel.GetAddress());
 			return id;
 		}
 
@@ -121,8 +121,18 @@ namespace stage{
 			}
 			if (!updatedThisFrame) updatePosition(up.elapsedMS);
 			uint64_t id = tracker.getNextID();
-			EventContext& context = tracker.addContext(up.id, id, from);
-			Send(CollisionCheck(id, *tempCollider, this->GetAddress(), up.elapsedMS), collisionEventChannel);
+			EventContext& context = tracker.addContext(up.id, id, from, 0);
+			context.finalize = [this, &context](){
+				uint64_t id = tracker.getNextID();
+				tracker.addContext(context.getOriginalID(), id, context.getOriginalSender());
+				Send(Transform::GetPosition(id), transform);
+			};
+			CollisionCheck newmsg(id, *tempCollider, this->GetAddress(), up.elapsedMS);
+			const std::list<Theron::Address>& recipients = collisionEventChannel.getRecipients();
+			for (std::list<Theron::Address>::const_iterator i = recipients.cbegin(); i != recipients.cend(); i++){
+				if ((*i) != this->GetAddress()) tracker.trackedSend<CollisionCheck>(up.id, newmsg, *i, from);
+			}
+
 		}
 
 		void collisionCheck(const CollisionCheck& msg, Theron::Address from){
@@ -166,12 +176,6 @@ namespace stage{
 			tracker.decrement(msg.id);
 		}
 
-		void allDone(const AllDone& msg, Theron::Address from){
-			if (from != collisionEventChannel) Component::allDone(msg, from);
-			else {
-				Send(Transform::GetPosition(msg.id), transform);
-			}
-		}
 
 		void finishUpdate(const Transform::Position& msg, Theron::Address from){
 			glm::vec3 translation = collider->center - oldPos;
