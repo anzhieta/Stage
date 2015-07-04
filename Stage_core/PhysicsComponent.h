@@ -129,10 +129,16 @@ namespace stage{
 			};
 			CollisionCheck newmsg(id, *tempCollider, this->GetAddress(), up.elapsedMS);
 			const std::list<Theron::Address>& recipients = collisionEventChannel.getRecipients();
+			bool sent = false;
 			for (std::list<Theron::Address>::const_iterator i = recipients.cbegin(); i != recipients.cend(); i++){
-				if ((*i) != this->GetAddress()) tracker.trackedSend<CollisionCheck>(up.id, newmsg, *i, from);
+				if ((*i) != this->GetAddress()){
+					tracker.trackedSend<CollisionCheck>(up.id, newmsg, *i, from);
+					sent = true;
+				}
 			}
-
+			if (!sent){
+				Send(AllDone(up.id), from);
+			}
 		}
 
 		void collisionCheck(const CollisionCheck& msg, Theron::Address from){

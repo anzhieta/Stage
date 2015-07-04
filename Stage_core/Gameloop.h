@@ -6,6 +6,7 @@
 #include <SceneManager.h>
 #include "GraphicsControlActor.h"
 #include <LogActor.h>
+#include <EventChannelManager.h>
 
 namespace stage {
 
@@ -47,6 +48,8 @@ namespace stage {
 		/** Käynnistää pelisilmukan suorituksen, joka päättyy peliohjelman sulkeutuessa
 		*/
 		void start();
+
+		EventChannelManager& getEventChannelManager(){ return eventChannelManager; }
 		
 	private:
 		/** Pelin olioita ja niiden välisiä viestejä hallinnoiva olio
@@ -64,6 +67,8 @@ namespace stage {
 		/** Kamera, jonka kuvakulmasta pelimaailma piirretään
 		*/
 		stage_common::Camera* activeCam;
+
+		EventChannelManager eventChannelManager;
 
 
 		/** Pelisilmukan aikaskaala (kuinka nopeasti simulaatiota suoritetaan)

@@ -7,10 +7,10 @@
 #include "CoreEvents.h"
 #include <iostream>
 #include "LogActor.h"
+#include "EventChannelManager.h"
 
 namespace stage {
 
-	//TODO threadsafe register/deregister
 		
 	template <class MessageType>
 	class EventChannel : public Theron::Actor{
@@ -29,6 +29,7 @@ namespace stage {
 			RegisterHandler(this, &EventChannel<MessageType>::deregisterRecipient);
 			RegisterHandler(this, &EventChannel<MessageType>::allDone);
 			RegisterHandler(this, &EventChannel<MessageType>::error);
+			RegisterHandler(this, &EventChannel<MessageType>::channelMaintenance);
 		}
 		const std::list<Theron::Address>& getRecipients(){
 			return recipients;
@@ -36,6 +37,8 @@ namespace stage {
 		
 	private:
 		std::list<Theron::Address> recipients;
+		std::list<Theron::Address> pendingAdd;
+		std::list<Theron::Address> pendingRemove;
 		ContextTracker tracker;
 		Theron::Framework& fw;
 
@@ -53,12 +56,23 @@ namespace stage {
 			}
 		}
 		void registerRecipient(const RegisterRecipient& msg, const Theron::Address from){
-			recipients.push_back(msg.recipient);
+			pendingAdd.push_back(msg.recipient);
 		}
 		void deregisterRecipient(const DeregisterRecipient& msg, const Theron::Address from){
-			for (std::list<Theron::Address>::const_iterator it = recipients.begin(); it != recipients.end(); it++){
-				if (*it == msg.recipient) recipients.erase(it);
+			pendingRemove.push_back(msg.recipient);
+		}
+		void channelMaintenance(const EventChannelManager::ChannelMaintenance& msg, const Theron::Address from){
+			for (std::list<Theron::Address>::const_iterator it = pendingAdd.begin(); it != pendingAdd.end(); it++){
+				recipients.push_back(*it);
 			}
+			pendingAdd.clear();
+			for (std::list<Theron::Address>::const_iterator it1 = pendingRemove.begin(); it1 != pendingRemove.end(); it1++){
+				for (std::list<Theron::Address>::const_iterator it2 = recipients.begin(); it2 != recipients.end(); it2++){
+					if (*it1 == *it2) recipients.erase(it2);
+				}
+			}
+			pendingRemove.clear();
+			Send(AllDone(msg.id), from);
 		}
 		void allDone(const AllDone& msg, const Theron::Address from){
 			if (tracker.contains(msg.id)) tracker.decrement(msg.id);

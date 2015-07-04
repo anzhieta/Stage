@@ -81,6 +81,7 @@
     <ClInclude Include="ContextVarList.h" />
     <ClInclude Include="CoreEvents.h" />
     <ClInclude Include="EventChannel.h" />
+    <ClInclude Include="EventChannelManager.h" />
     <ClInclude Include="EventContext.h" />
     <ClInclude Include="LogActor.h" />
     <ClInclude Include="stdafx.h" />

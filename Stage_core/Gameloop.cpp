@@ -14,7 +14,7 @@
 
 using namespace stage;
 
-Gameloop::Gameloop(std::string& windowName, int xres, int yres){
+Gameloop::Gameloop(std::string& windowName, int xres, int yres): eventChannelManager(fw){
 	if (SceneManager::globalManager != Theron::Address::Null()){
 		//Sallitaan vain yksi Gameloop
 		std::abort();
@@ -22,7 +22,6 @@ Gameloop::Gameloop(std::string& windowName, int xres, int yres){
 	gc = new GraphicsControlActor(fw, windowName, xres, yres);
 	logger = new LogActor(fw);
 	SceneManager::globalManager = receiver.GetAddress();
-
 }
 
 Gameloop::~Gameloop(){
@@ -110,6 +109,8 @@ void Gameloop::loop() {
 		//Poistovaihe
 		//TODO: peliolioiden poistaminen
 
+		
+
 		//Piirtovaihe
 		rendTimer.start();
 		//Haetaan piirrettävät mallit
@@ -126,6 +127,14 @@ void Gameloop::loop() {
 		//Ylläpitovaihe
 		maintTimer.start();
 		stage_common::Input::getSingleton().update(false);
+
+		//Huolletaan tapahtumakanavat
+		id = Event::generateID(recAddress, msgid++);
+		fw.Send(EventChannelManager::ChannelMaintenance(id), recAddress, eventChannelManager.GetAddress());
+		while (doneCatcher.Empty()){
+			receiver.Wait();
+		}
+		doneCatcher.Pop(adMSG, sender);
 
 		//Tarkistetaan, pitääkö ohjelma sulkea
 		if (!abortCatcher.Empty()) stop();

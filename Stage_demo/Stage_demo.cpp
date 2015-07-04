@@ -79,6 +79,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	loop.setActiveScene(0);
 
 	EventChannel<PhysicsComponent::CollisionCheck> collChannel(fw);
+	loop.getEventChannelManager().addChannel(collChannel.GetAddress());
 
 	Theron::Receiver rec;
 	Theron::Receiver adRec;
