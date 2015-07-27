@@ -45,6 +45,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_physics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_utilities;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_graphics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_scene;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_core;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -70,12 +71,14 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>D:\glm\glm;D:\glfw\glfw-3.1.bin.WIN32\include;D:\glew\glew-1.12.0\include;D:\boost_1_58\boost_1_58_0;D:\theron\Theron-6.00.02\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>D:\theron\Theron-6.00.02\Bin\Release\Theron.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Release\Stage_core.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Release\Stage_event.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Release\Stage_scene.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Release\Stage_common_graphics.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Release\Stage_common_utilities.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Release\Stage_common_physics.lib;D:\glew\glew-1.12.0\lib\Release\Win32\glew32s.lib;D:\glfw\glfw-3.1.bin.WIN32\lib-vc2013\glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

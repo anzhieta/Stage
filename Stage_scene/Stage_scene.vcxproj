@@ -42,6 +42,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_utilities;D:\boost_1_58\boost_1_58_0;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;D:\theron\2013\Theron-6.00.02\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_utilities;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -65,6 +68,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>D:\glm\glm;D:\boost_1_58\boost_1_58_0;D:\theron\Theron-6.00.02\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
