@@ -28,12 +28,6 @@ namespace stage{
 			SetActiveScene(uint64_t id, unsigned int scene) : Event(id), scene(scene){}
 		};
 
-		/* TODO:fix
-		
-		struct SetActiveCamera{
-			Theron::Address cam;
-			SetActiveCamera(Theron::Address cam) :cam(cam){}
-		};*/
 
 		/** Viesti, jolla pyydetään pelimoottoria luomaan uusi pelialue
 		*/

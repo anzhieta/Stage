@@ -1,11 +1,15 @@
-#ifndef SPHERE_H
+﻿#ifndef SPHERE_H
 #define SPHERE_H
 
 #include "stdafx.h"
 #include <vector>
 #include <glm\glm.hpp>
 
+//Sisältää apufunktioita, joiden avulla voidaan muodostaa pallon piirtämiseen vaadittava 3D-malli
+
 namespace stage{
+	/** Pallon verteksit
+	*/
 	static std::vector<glm::vec3> sphere_vertices = {
 		glm::vec3(0.000000, -1.000000, 0.000000),
 		glm::vec3(0.723607, -0.447220, 0.525725),
@@ -51,6 +55,8 @@ namespace stage{
 		glm::vec3(0.162456, 0.850654, -0.499995)
 	};
 
+	/** Pallon tahkot
+	*/
 	static std::vector<int> sphere_faces = {
 		1, 14, 13,
 		2, 14, 16,
@@ -134,6 +140,9 @@ namespace stage{
 		14, 2, 15
 	};
 
+	/** Yhdistää pallon verteksit ja tahkot yhtenäiseksi verteksilistaksi
+	@returns	Lista pallon vektoreista
+	*/
 	static std::vector<glm::vec3> generate_sphere_vertices(){
 		std::vector<glm::vec3> ret;
 		for (unsigned int i = 0; i < sphere_faces.size(); i++){
@@ -142,6 +151,9 @@ namespace stage{
 		return ret;
 	}
 
+	/** Arpoo pallon vertekseille värit
+	@returns	Lista värivektoreita
+	*/
 	static std::vector<glm::vec3> generate_sphere_colors(){
 		std::vector<glm::vec3> ret;
 		for (unsigned int i = 0; i < sphere_faces.size(); i++){

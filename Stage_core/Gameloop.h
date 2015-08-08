@@ -49,6 +49,9 @@ namespace stage {
 		*/
 		void start();
 
+		/** Hakee viitteen tapahtumakanavia hallinnoivaan aktoriin
+		@returns	Viite tapahtumakanavien hallinta-aktoriin
+		*/
 		EventChannelManager& getEventChannelManager(){ return eventChannelManager; }
 		
 	private:
@@ -68,6 +71,8 @@ namespace stage {
 		*/
 		stage_common::Camera* activeCam;
 
+		/** Tapahtumakanavia huoltava aktori
+		*/
 		EventChannelManager eventChannelManager;
 
 

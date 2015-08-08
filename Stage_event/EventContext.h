@@ -26,10 +26,10 @@ namespace stage{
 		*/
 		std::function<void()> error;
 
+		/** Osoitin ensimmäiseen kontekstimuuttujaan
+		*/
 		ContextVar* varHead = nullptr;
-
-		//TODO: mielivaltaiset muuttujat boost::any:n avulla
-
+		
 		/** Luo uuden tapahtumakontekstin.
 		@param id				Sen viestin tunnusluku, jonka vuoksi tämä konteksti luotiin
 		@param sender			Sen viestin lähettäjä, jonka vuoksi tämä konteksti luotiin
