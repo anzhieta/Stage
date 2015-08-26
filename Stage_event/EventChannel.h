@@ -87,7 +87,7 @@ namespace stage {
 			}
 			if (sent == 0){
 				//Jos ei kuuntelijoita, kaikki valmista
-				fw.Send(AllDone(msg.id), this->GetAddress(), from);
+				Send(AllDone(msg.id), from);
 			}
 		}
 		/** Liittää uuden kuuntelijan kuuntelijalistaan ruudunpäivityksen lopussa
