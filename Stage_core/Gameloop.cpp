@@ -14,7 +14,8 @@
 
 using namespace stage;
 
-Gameloop::Gameloop(std::string& windowName, int xres, int yres): eventChannelManager(fw){
+Gameloop::Gameloop(std::string& windowName, int xres, int yres, uint32_t threadcount): 
+	fw(Theron::Framework::Parameters(threadcount)), eventChannelManager(fw){
 	if (SceneManager::globalManager != Theron::Address::Null()){
 		//Sallitaan vain yksi Gameloop
 		std::abort();

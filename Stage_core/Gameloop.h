@@ -20,7 +20,7 @@ namespace stage {
 		@param xres			Ikkunan vaakaresoluutio
 		@param yres			Ikkunan pystyresoluutio
 		*/
-		Gameloop(std::string& windowName, int xres, int yres);
+		Gameloop(std::string& windowName, int xres, int yres, uint32_t threadcount);
 
 		/** Tuhoaa pelisilmukan
 		*/

@@ -34,6 +34,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	int SCALE = 10;
 	//Pallojen määrä
 	int SPHERES = 5;
+	//Säikeiden määrä
+	uint32_t THREADS = 16;
 	std::string configfile;
 	std::ifstream configStream("config.ini", std::ios::in);
 	//Luetaan parametrit konfiguraatiotiedostosta
@@ -73,6 +75,17 @@ int _tmain(int argc, _TCHAR* argv[])
 					continue;
 				}
 			}
+			//THREADS-parametri
+			else if (start == "THREADS"){
+				try{
+					THREADS = std::stoi(end);
+					if (THREADS < 1) THREADS = 1;
+				}
+				catch (...){
+					std::cerr << "Error parsing configuration parameter THREADS" << std::endl;
+					continue;
+				}
+			}
 			//Muut parametrit
 			else std::cerr << "Unknown configuration parameter " << start << std::endl;
 		}
@@ -81,7 +94,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	else std::cerr << "Warning: config.ini not found, falling back to default parameters" << std::endl;
 
 	//Luodaan pelisilmukka
-	stage::Gameloop loop(std::string("Stage engine demo"), 640, 480);
+	stage::Gameloop loop(std::string("Stage engine demo"), 640, 480, THREADS);
 	Theron::Framework& fw = loop.getFramework();
 	//Luodaan tapahtumakanava fysiikkaolioille
 	EventChannel<PhysicsComponent::CollisionCheck> collChannel(fw);
