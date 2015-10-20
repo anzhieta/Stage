@@ -36,6 +36,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	int SPHERES = 5;
 	//Säikeiden määrä
 	uint32_t THREADS = 16;
+	double WAIT = 0.0;
 	std::string configfile;
 	std::ifstream configStream("config.ini", std::ios::in);
 	//Luetaan parametrit konfiguraatiotiedostosta
@@ -83,6 +84,17 @@ int _tmain(int argc, _TCHAR* argv[])
 				}
 				catch (...){
 					std::cerr << "Error parsing configuration parameter THREADS" << std::endl;
+					continue;
+				}
+			}
+			//WAIT-parametri
+			else if (start == "WAIT"){
+				try{
+					WAIT = std::stod(end);
+					if (WAIT < 0.0) WAIT = 0.0;
+				}
+				catch (...){
+					std::cerr << "Error parsing configuration parameter WAIT" << std::endl;
 					continue;
 				}
 			}
@@ -180,7 +192,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//Luodaan pallot
 	for (int i = 0; i < SPHERES; i++){
-		factory.constructRandomSphere(fw, sc, glm::vec3(SCALE - 1, SCALE - 1, SCALE - 1), collChannel);
+		factory.constructRandomSphere(fw, sc, glm::vec3(SCALE - 1, SCALE - 1, SCALE - 1), collChannel, WAIT);
 	}
 
 	//Käynnistetään pelisilmukka
