@@ -25,7 +25,7 @@ namespace stage{
 		@returns						Luodun peliolion Theron-osoite
 		*/
 		Theron::Address constructRandomSphere(Theron::Framework& fw, Theron::Address scene, glm::vec3 maxCoordinates, 
-			EventChannel<PhysicsComponent::CollisionCheck>& collisionEventChannel, double waitMicros){
+			EventChannel<PhysicsComponent::CollisionCheck>& collisionEventChannel, int waitLimit){
 			
 			Scene::NewObject obj(0, Theron::Address::Null());
 			Theron::Address temp;
@@ -47,7 +47,7 @@ namespace stage{
 			glm::vec3 velocity(randomFloat(-0.01f, 0.01f), randomFloat(-0.01f, 0.01f), randomFloat(-0.01f, 0.01f));
 			//Luodaan pallolle fysiikkakomponentti
 			PhysicsComponent* pc = new PhysicsComponent(fw, obj.object, tf->GetAddress(), 1.0f, velocity, 1.0f, collisionEventChannel);
-			if (waitMicros > 0.0) Waiter* w = new Waiter(fw, obj.object, waitMicros);
+			if (waitLimit > 0) Waiter* w = new Waiter(fw, obj.object, waitLimit);
 			return obj.object;
 		}
 
