@@ -2,6 +2,7 @@
 #define COREEVENTS_H
 
 #include "stdafx.h"
+#define INVALID_COMPONENT_ID -1
 
 namespace stage {
 	/** Tietue, jonka kaikki pelimoottorin viestit perivät.
@@ -12,20 +13,27 @@ namespace stage {
 		@param originator	Viestin luojan Theron-osoite
 		@param msgID		32-bittinen tunnus, joka yksilöi viestin muiden saman lähettäjän viestien joukossa
 		*/
-		Event(Theron::Address originator, uint32_t msgID){
+		Event(Theron::Address originator, uint32_t msgID, int senderComponent, int receiverComponent){
+			this->senderComponent = senderComponent;
+			this->receiverComponent = receiverComponent;
 			id = generateID(originator, msgID);
 		}
 
 		/** Luo uuden viestin.
 		@param msgID	64-bittinen tunnus, joka yksilöi viestin kaikkien pelimoottorin viestien joukossa
 		*/
-		Event(uint64_t msgID){
+		Event(uint64_t msgID, int senderComponent, int receiverComponent){
+			this->senderComponent = senderComponent;
+			this->receiverComponent = receiverComponent;
 			id = msgID;
 		}
 
 		/** Viestin yksilöivä tunnusluku
 		*/
 		uint64_t id;
+
+		int senderComponent;
+		int receiverComponent;
 
 		/** Apufunktio, joka muodostaa osoitteesta ja oliokohtaisesti uniikista 32-bittisestä tunnuksesta
 		pelimoottorin sisällä yksilöllisen 64-bittisen tunnuksen
@@ -48,15 +56,15 @@ namespace stage {
 		/** Edellisestä ruudunpäivityksestä kulunut aika millisekunteina
 		*/
 		float elapsedMS;
-		Update(float ms, uint64_t msgID) : elapsedMS(ms), Event(msgID){}
-		Update(float ms, Theron::Address originator, uint32_t msgID) : elapsedMS(ms), Event(originator, msgID){}
+		Update(float ms, uint64_t msgID) : elapsedMS(ms), Event(msgID, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID){}
+		Update(float ms, Theron::Address originator, uint32_t msgID) : elapsedMS(ms), Event(originator, msgID, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID){}
 	};
 
 	/** Viesti, jolla pyydetään pelioliota tai komponenttia piirtämään itsensä ruudulle
 	*/
 	struct Render : Event {
-		Render(uint64_t msgID) : Event(msgID){}
-		Render(Theron::Address originator, uint32_t msgID) : Event(originator, msgID){}
+		Render(uint64_t msgID) : Event(msgID, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID){}
+		Render(Theron::Address originator, uint32_t msgID) : Event(originator, msgID, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID){}
 	};
 
 	/** Viesti, joka ilmaisee pyydetyn aktorilaskennan päättyneen

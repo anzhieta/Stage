@@ -18,7 +18,7 @@ namespace stage{
 	Component::GetComponentID (palauttaa Component::ComponentID)
 	GameObject::GetComponent (palauttaa GameObject::ComponentFound tai AllDone)
 	*/
-	class Component : public Theron::Actor{
+	class Component{
 	public:
 		/** Viesti, joka kertoo lähettäjänsä tyyppitunnuksen
 		*/
@@ -87,6 +87,11 @@ namespace stage{
 		@returns	Komponentin tyypistä riippuva tunnusluku
 		*/
 		virtual int id() = 0;
+
+		template <class ComponentType, class ValueType>
+		void RegisterHandler(ComponentType* const comp, void (ComponentType::*handler)(const ValueType &message, const Theron::Address from)){
+			owner->registerComponentHandler(comp, handler);
+		}
 
 	private:
 		/** Kysyy komponentilta, onko se tiettyä tyyppiä

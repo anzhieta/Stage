@@ -3,7 +3,7 @@
 
 using namespace stage;
 
-Component::Component(Theron::Framework &fw, Theron::Address owner) : Theron::Actor(fw), owner(owner), tracker(fw, this->GetAddress()){
+Component::Component(Theron::Framework &fw, Theron::Address owner) : owner(owner), tracker(fw, owner){
 	RegisterHandler(this, &Component::update);
 	RegisterHandler(this, &Component::render);
 	RegisterHandler(this, &Component::isType);

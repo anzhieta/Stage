@@ -58,6 +58,11 @@ namespace stage{
 		/** Tuhoaa peliolion ja kaikki sen komponentit
 		*/
 		~GameObject();
+
+		template <class ComponentType, class EventType>
+		void registerComponentHandler(ComponentType* c, void (ComponentType::* handler)(const EventType &message, const Theron::Address from){
+			RegisterHandler(c, handler);
+		}
 	private:
 		/** Peliolion kaikki komponentit sisältävä lista
 		*/
