@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include "ContextVarList.h"
+#include "CoreEvents.h"
 
 namespace stage{
 	/** Luokka, joka ylläpitää kontekstitietoja usean viestin käsittelyn yli.
@@ -35,12 +36,12 @@ namespace stage{
 		@param sender			Sen viestin lähettäjä, jonka vuoksi tämä konteksti luotiin
 		@param responseCount	Tähän viestiin odotettujen vastausten määrä
 		*/
-		EventContext(uint64_t id, Theron::Address sender, unsigned int responseCount): originalID(id), originalSender(sender), 
+		EventContext(uint64_t id, Destination sender, unsigned int responseCount): originalID(id), originalSender(sender), 
 			responseCount(responseCount){}
 
 		/** Luo tyhjän tapahtumakontekstin kontekstilistan tietorakenteiden initialisointia varten
 		*/
-		EventContext() : originalID(0), originalSender(0), responseCount(0){
+		EventContext() : originalID(0), originalSender(Destination(Theron::Address::Null(), INVALID_COMPONENT_ID)), responseCount(0){
 			//Estetään lopetusmetodin kutsuminen tyhjälle kontekstille
 			finalize = [](){abort(); };
 			error = finalize;
@@ -86,7 +87,7 @@ namespace stage{
 		/** Palauttaa sen viestin lähettäjän, joka aiheutti tämän kontekstin luomisen
 		@returns	alkuperäisen lähettäjän Theron-osoite
 		*/
-		Theron::Address getOriginalSender() const { return originalSender; }
+		Destination getOriginalSender() const { return originalSender; }
 	private:
 		/** Sen viestin tunnus, joka aiheutti tämän kontekstin luomisen
 		*/
@@ -94,7 +95,7 @@ namespace stage{
 
 		/** Sen viestin lähettäjä, joka aiheutti tämän kontekstin luomisen
 		*/
-		Theron::Address originalSender;
+		Destination originalSender;
 	};
 
 }

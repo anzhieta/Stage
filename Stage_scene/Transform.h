@@ -25,56 +25,56 @@ namespace stage{
 
 		/** Viesti, joka ilmoittaa Transform-olion tilan vastauksena GetMatrix-viestiin
 		*/
-		struct Matrix : public Event {
+		struct Matrix : public ComponentEvent {
 			/** 4x4-matriisi, joka kertoo peliolion sijainnin 3D-maailmassa
 			*/
 			glm::mat4& matrix;
-			Matrix(glm::mat4& mt, Theron::Address originator, uint32_t msgID) : matrix(mt), Event(originator, msgID){}
-			Matrix(uint64_t msgID, glm::mat4& mt) : matrix(mt), Event(msgID){}
+			//Matrix(glm::mat4& mt, Theron::Address originator, uint32_t msgID) : matrix(mt), Event(originator, msgID){}
+			Matrix(uint64_t msgID, glm::mat4& mt, int receiverComponent) : matrix(mt), ComponentEvent(msgID, TRANSFORM_ID, receiverComponent){}
 		};
 
 		/** Viesti, joka ilmoittaa Transform-olion sijainnin vastauksena GetMatrix-viestiin
 		*/
-		struct Position : public Event {
+		struct Position : public ComponentEvent {
 			/** 4x4-matriisi, joka kertoo peliolion sijainnin 3D-maailmassa
 			*/
 			glm::vec3 position;
-			Position(glm::vec3& pos, Theron::Address originator, uint32_t msgID) : position(pos), Event(originator, msgID){}
-			Position(uint64_t msgID, glm::vec3 pos) : position(pos), Event(msgID){}
+			//Position(glm::vec3& pos, Theron::Address originator, uint32_t msgID) : position(pos), Event(originator, msgID){}
+			Position(uint64_t msgID, glm::vec3 pos, int receiverComponent) : position(pos), ComponentEvent(msgID, TRANSFORM_ID, receiverComponent){}
 		};
 
 		/** Viesti, jolla pyydetään Transform-komponenttia lähettämään tiedon nykyisestä tilastaan
 		*/
-		struct GetMatrix : public Event {
-			GetMatrix(Theron::Address originator, uint32_t msgID) : Event(originator, msgID){}
-			GetMatrix(uint64_t msgID) : Event(msgID){}
+		struct GetMatrix : public ComponentEvent {
+			//GetMatrix(Theron::Address originator, uint32_t msgID) : Event(originator, msgID){}
+			GetMatrix(uint64_t msgID, int senderComponent) : ComponentEvent(msgID, senderComponent, TRANSFORM_ID){}
 		};
 
 		/** Viesti, jolla pyydetään Transform-komponenttia lähettämään nykyisen sijaintinsa
 		*/
-		struct GetPosition : public Event {
-			GetPosition(Theron::Address originator, uint32_t msgID) : Event(originator, msgID){}
-			GetPosition(uint64_t msgID) : Event(msgID){}
+		struct GetPosition : public ComponentEvent {
+			//GetPosition(Theron::Address originator, uint32_t msgID) : Event(originator, msgID){}
+			GetPosition(uint64_t msgID, int senderComponent) : ComponentEvent(msgID, senderComponent, TRANSFORM_ID){}
 		};
 
 		/** Viesti, jolla pyydetään Transform-komponenttia asettamaan itselleen uusi tila
 		*/
-		struct SetMatrix : public Event {
+		struct SetMatrix : public ComponentEvent {
 			/** 4x4-matriisi, joka kertoo peliolion uuden sijainnin 3D-maailmassa
 			*/
 			glm::mat4& matrix;
-			SetMatrix(Theron::Address originator, uint32_t msgID, glm::mat4& mt) : matrix(mt), Event(originator, msgID){}
-			SetMatrix(uint64_t msgID, glm::mat4& mt) : matrix(mt), Event(msgID){}
+			//SetMatrix(Theron::Address originator, uint32_t msgID, glm::mat4& mt) : matrix(mt), Event(originator, msgID){}
+			SetMatrix(uint64_t msgID, glm::mat4& mt, int senderComponent) : matrix(mt), ComponentEvent(msgID, senderComponent, TRANSFORM_ID){}
 		};
 
 		/** Viesti, jolla pyydetään Transform-komponenttia siirtämään pelioliotaan tiettyyn suuntaan
 		*/
-		struct Translate : public Event {
+		struct Translate : public ComponentEvent {
 			/** Vektori, joka kertoo miten paljon ja mihin suuntaan oliota siirretään
 			*/
 			glm::vec3 vector;
-			Translate(Theron::Address originator, uint32_t msgID, glm::vec3 vec) : vector(vec), Event(originator, msgID){}
-			Translate(uint64_t msgID, glm::vec3 vec) : vector(vec), Event(msgID){}
+			//Translate(Theron::Address originator, uint32_t msgID, glm::vec3 vec) : vector(vec), Event(originator, msgID){}
+			Translate(uint64_t msgID, glm::vec3 vec, int senderComponent) : vector(vec), ComponentEvent(msgID, senderComponent, TRANSFORM_ID){}
 		};
 
 		/** Luo uuden koordinaattikomponentin. Katso oikea käyttö yliluokasta.
@@ -83,15 +83,18 @@ namespace stage{
 		@param tr		Komponentin alkutilaa kuvaava 4x4-matriisi
 		*/
 		Transform(Theron::Framework& fw, Theron::Address owner, glm::mat4& tr = glm::mat4());
+		
+		/** Palauttaa koordinaattikomponentin tunnusluvun
+		*/
+		virtual int id(){ return TRANSFORM_ID; }
+
+	protected:
+		virtual void initialize(GameObject* owner);
 	private:
 		
 		/** Komponentin omistavan peliolion sijaintia 3D-pelimaailmassa kuvaava 4x4-matriisi
 		*/
-		glm::mat4 transform;
-
-		/** Palauttaa koordinaattikomponentin tunnusluvun
-		*/
-		virtual int id(){ return TRANSFORM_ID; }		
+		glm::mat4 transform;			
 
 		/** Hakee tämän komponentin sisäistä tilaa kuvaavan matriisin
 		@param msg		Tilan hakupyyntö

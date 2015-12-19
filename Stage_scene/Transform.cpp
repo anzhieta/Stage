@@ -4,27 +4,31 @@
 using namespace stage;
 
 Transform::Transform(Theron::Framework& fw, Theron::Address owner, glm::mat4& tr) : Component(fw, owner), transform(tr){
-	RegisterHandler(this, &Transform::getMatrix);
-	RegisterHandler(this, &Transform::setMatrix);
-	RegisterHandler(this, &Transform::translate);
-	RegisterHandler(this, &Transform::getPosition);
+}
+
+void Transform::initialize(GameObject* owner){
+	Component::initialize(owner);
+	RegisterHandler<Transform, GetMatrix, &Transform::getMatrix>();
+	RegisterHandler<Transform, SetMatrix, &Transform::setMatrix>();
+	RegisterHandler<Transform, Translate, &Transform::translate>();
+	RegisterHandler<Transform, GetPosition, &Transform::getPosition>();
 }
 
 void Transform::getMatrix(const GetMatrix& msg, Theron::Address sender){
-	Send(Matrix(msg.id, transform), sender);
+	Send(Matrix(msg.id, transform, msg.senderComponent), sender);
 }
 
 void Transform::getPosition(const GetPosition& msg, Theron::Address sender){
 	glm::vec3 position = glm::vec3(transform[3]);
-	Send(Position(msg.id, position), sender);
+	Send(Position(msg.id, position, msg.senderComponent), sender);
 }
 
 void Transform::setMatrix(const SetMatrix& msg, Theron::Address sender){
 	transform = msg.matrix;
-	Send(AllDone(msg.id), sender);
+	Send(AllDone(msg.id, id(), msg.senderComponent), sender);
 }
 
 void Transform::translate(const Translate& msg, Theron::Address sender){
 	transform = glm::translate(transform, msg.vector);
-	Send(AllDone(msg.id), sender);
+	Send(AllDone(msg.id, id(), msg.senderComponent), sender);
 }

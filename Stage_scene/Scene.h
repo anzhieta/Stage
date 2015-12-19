@@ -19,14 +19,15 @@ namespace stage {
 	public:
 		/** Viesti, jolla pyydetään luomaan pelimaailmaan uusi peliolio
 		*/
-		struct CreateObject : Event{
-			CreateObject(uint64_t id) : Event(id){}
+		struct CreateObject : ComponentEvent{
+			CreateObject(uint64_t id, int senderComponent) : ComponentEvent(id, senderComponent, INVALID_COMPONENT_ID){}
 		};
 
 		/** Viesti, joka palauttaa luodun peliolion osoitteen
 		*/
-		struct NewObject : Event{
-			NewObject(uint64_t id, Theron::Address obj) : Event(id), object(obj){}
+		struct NewObject : ComponentEvent{
+			NewObject(uint64_t id, Theron::Address obj, int receiverComponent) : 
+				ComponentEvent(id, INVALID_COMPONENT_ID, receiverComponent), object(obj){}
 			/** Uuden olion osoite
 			*/
 			Theron::Address object;

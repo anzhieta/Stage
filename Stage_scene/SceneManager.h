@@ -31,20 +31,21 @@ namespace stage{
 
 		/** Viesti, jolla pyydetään pelimoottoria luomaan uusi pelialue
 		*/
-		struct CreateScene : Event{
-			CreateScene(uint64_t id) : Event(id){}
+		struct CreateScene : ComponentEvent{
+			CreateScene(uint64_t id, int senderComponent) : ComponentEvent(id, senderComponent, INVALID_COMPONENT_ID){}
 		};
 
 		/** Vastaus pelialueen luontipyyntöön - ilmoittaa uuden pelialueen tunnusnumeron ja osoitteen
 		*/
-		struct NewScene : Event{
+		struct NewScene : ComponentEvent{
 			/** Uuden pelialueen tunnusnumero
 			*/
 			unsigned int scene;
 			/** Uuden pelialueen Theron-osoite
 			*/
 			Theron::Address scAddress;
-			NewScene(uint64_t id, unsigned int scene, Theron::Address scAddress) : Event(id), scene(scene), scAddress(scAddress){}
+			NewScene(uint64_t id, unsigned int scene, Theron::Address scAddress, int receiverComponent) : 
+				ComponentEvent(id, INVALID_COMPONENT_ID, receiverComponent), scene(scene), scAddress(scAddress){}
 		};
 
 		/** Luo uuden pelialueiden hallintaolion

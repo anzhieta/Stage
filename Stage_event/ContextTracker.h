@@ -18,7 +18,7 @@ namespace stage{
 		@param fw		Se Theron::Framework, joka ylläpitää listan omistajaa
 		@param owner	Listan omistajan Theron-osoite
 		*/
-		ContextTracker(Theron::Framework& fw, Theron::Address owner) : fw(fw), owner(owner), pending(){	}
+		ContextTracker(Theron::Framework& fw, Destination owner) : fw(fw), owner(owner), pending(){	}
 
 		/** Luo uuden tapahtumakontekstin.
 		@param oldID			Sen viestin tunnus, jonka seurauksena tämä konteksti luodaan
@@ -27,7 +27,7 @@ namespace stage{
 		@param responseCount	Tähän viestiin odotettavien vastauksien määrä (oletus 1)
 		@returns				Viite luotuun kontekstiolioon
 		*/
-		EventContext& addContext(uint64_t oldID, uint64_t newID, Theron::Address originalSender, int responseCount = 1);
+		EventContext& addContext(uint64_t oldID, uint64_t newID, Destination originalSender, int responseCount = 1);
 
 		/** Hakee viitteen haluttuun kontekstiin
 		HUOM: jos haluttua kontekstia ei ole, voi aiheuttaa virhetilanteen. 
@@ -74,12 +74,12 @@ namespace stage{
 		@param originalSender	Alkuperäisen viestin lähettäjä
 		@returns				Viite luotuun kontekstiolioon
 		*/
-		void trackedSend(uint64_t oldID, const MessageType& ev, Theron::Address recipient, Theron::Address originalSender){
+		void trackedSend(uint64_t oldID, const MessageType& ev, Theron::Address recipient, Destination originalSender){
 			if (!contains(ev.id)){
 				addContext(oldID, ev.id, originalSender, 0);
 			}
 			pending[ev.id].responseCount++;
-			fw.Send(ev, owner, recipient);
+			fw.Send(ev, owner.address, recipient);
 		}
 
 		template <typename T>
@@ -128,7 +128,7 @@ namespace stage{
 
 		/** Tämän olion omistajaolion Theron-osoite
 		*/
-		Theron::Address owner;
+		Destination owner;
 	};
 }
 

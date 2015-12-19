@@ -8,14 +8,14 @@
 using namespace stage;
 typedef std::list<Component*>::iterator comp_iterator;
 
-GameObject::GameObject(Theron::Framework &fw) : Theron::Actor(fw), tracker(fw, this->GetAddress()) {
+GameObject::GameObject(Theron::Framework &fw) : Theron::Actor(fw), tracker(fw, Destination(this->GetAddress(), INVALID_COMPONENT_ID)) {
 	RegisterHandler(this, &GameObject::update);
 	RegisterHandler(this, &GameObject::render);
 	RegisterHandler(this, &GameObject::addComponent);
-	RegisterHandler(this, &GameObject::getComponent);
+	//RegisterHandler(this, &GameObject::getComponent);
 	RegisterHandler(this, &GameObject::allDone);
 	RegisterHandler(this, &GameObject::error);
-	RegisterHandler(this, &GameObject::componentFound);
+	//RegisterHandler(this, &GameObject::componentFound);
 }
 
 GameObject::~GameObject(){
@@ -26,7 +26,9 @@ GameObject::~GameObject(){
 
 void GameObject::addComponent(const AddComponent &msg, Theron::Address from){
 	components.push_back(msg.component);
+	msg.component->initialize(this);
 }
+/*
 void GameObject::getComponent(const GetComponent &msg, Theron::Address from){
 	uint64_t id = tracker.getNextID();
 	GetComponent newMsg(id, msg.compID);
@@ -49,28 +51,30 @@ void GameObject::componentFound(const ComponentFound &msg, Theron::Address from)
 		tracker.setVariable<bool>(msg.id, 0, true);
 		tracker.decrement(msg.id);
 	}
-}
+}*/
 
 void GameObject::update(const Update &msg, Theron::Address from){
 	if (components.size() == 0){
-		Send(AllDone(msg.id), from);
+		Send(AllDone(msg.id, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID), from);
 	}
 	else {
 		uint64_t id = tracker.getNextID();
+		tracker.addContext(msg.id, id, Destination(from, INVALID_COMPONENT_ID), components.size());
 		for (comp_iterator i = components.begin();i != components.end(); i++){
-			tracker.trackedSend<Update>(msg.id, Update(msg.elapsedMS, id), (*i)->GetAddress(), from);
+			(*i)->update(msg, from);
 		}
 	}
 	
 }
 void GameObject::render(const Render &msg, Theron::Address from){
 	if (components.size() == 0){
-		Send(AllDone(msg.id), from);
+		Send(AllDone(msg.id, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID), from);
 	}
 	else {
 		uint64_t id = tracker.getNextID();
+		tracker.addContext(msg.id, id, Destination(from, INVALID_COMPONENT_ID), components.size());
 		for (comp_iterator i = components.begin(); i != components.end(); i++){
-			tracker.trackedSend<Render>(msg.id, Render(id), (*i)->GetAddress(), from);
+			(*i)->render(msg, from);
 		}
 	}
 }
@@ -79,7 +83,16 @@ void GameObject::allDone(const AllDone &msg, Theron::Address from){
 	if (tracker.contains(msg.id)) tracker.decrement(msg.id);
 }
 
+void GameObject::allDone(uint64_t id){
+	if (tracker.contains(id)) tracker.decrement(id);
+}
+
 void GameObject::error(const Error &msg, Theron::Address from){
 	LOGERR(std::string("Warning: component ") + from.AsString() + " reported error during processing");
 	if (tracker.contains(msg.id)) tracker.decrement(msg.id);
+}
+
+void GameObject::error(uint64_t id, const std::string& compname){
+	LOGERR(std::string("Warning: component ") + compname + " reported error during processing");
+	if (tracker.contains(id)) tracker.decrement(id);
 }

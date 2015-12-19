@@ -24,6 +24,8 @@
 
 using namespace stage;
 
+
+
 /** Stage-moottorin demo-ohjelman pääohjelmametodi
 Luo suljetun kuution, jonka sisälle generoidaan satunnaisesti törmäileviä palloja
 */

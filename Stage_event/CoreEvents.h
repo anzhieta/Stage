@@ -13,18 +13,14 @@ namespace stage {
 		@param originator	Viestin luojan Theron-osoite
 		@param msgID		32-bittinen tunnus, joka yksilöi viestin muiden saman lähettäjän viestien joukossa
 		*/
-		Event(Theron::Address originator, uint32_t msgID, int senderComponent, int receiverComponent){
-			this->senderComponent = senderComponent;
-			this->receiverComponent = receiverComponent;
+		Event(Theron::Address originator, uint32_t msgID){
 			id = generateID(originator, msgID);
 		}
 
 		/** Luo uuden viestin.
 		@param msgID	64-bittinen tunnus, joka yksilöi viestin kaikkien pelimoottorin viestien joukossa
 		*/
-		Event(uint64_t msgID, int senderComponent, int receiverComponent){
-			this->senderComponent = senderComponent;
-			this->receiverComponent = receiverComponent;
+		Event(uint64_t msgID){
 			id = msgID;
 		}
 
@@ -32,9 +28,7 @@ namespace stage {
 		*/
 		uint64_t id;
 
-		int senderComponent;
-		int receiverComponent;
-
+		
 		/** Apufunktio, joka muodostaa osoitteesta ja oliokohtaisesti uniikista 32-bittisestä tunnuksesta
 		pelimoottorin sisällä yksilöllisen 64-bittisen tunnuksen
 		@param originator	Tunnuksen luojan osoite
@@ -49,6 +43,25 @@ namespace stage {
 		}
 	};
 
+	struct ComponentEvent : Event {
+		int senderComponent;
+		int receiverComponent;
+		/** Luo uuden viestin.
+		@param msgID	64-bittinen tunnus, joka yksilöi viestin kaikkien pelimoottorin viestien joukossa
+		*/
+		ComponentEvent(uint64_t msgID, int senderComponent, int receiverComponent) : Event(msgID){
+			this->senderComponent = senderComponent;
+			this->receiverComponent = receiverComponent;
+			id = msgID;
+		}
+	};
+
+	struct Destination{
+		Theron::Address address;
+		int component;
+		Destination(const Theron::Address& address, int component): address(address), component(component){}
+	};
+
 	/** Viesti, jolla pyydetään pelioliota tai komponenttia päivittämään sisäinen tilansa uutta
 	ruudunpäivitystä vastaavaksi
 	*/
@@ -56,29 +69,29 @@ namespace stage {
 		/** Edellisestä ruudunpäivityksestä kulunut aika millisekunteina
 		*/
 		float elapsedMS;
-		Update(float ms, uint64_t msgID) : elapsedMS(ms), Event(msgID, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID){}
-		Update(float ms, Theron::Address originator, uint32_t msgID) : elapsedMS(ms), Event(originator, msgID, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID){}
+		Update(float ms, uint64_t msgID) : elapsedMS(ms), Event(msgID){}
+		Update(float ms, Theron::Address originator, uint32_t msgID) : elapsedMS(ms), Event(originator, msgID){}
 	};
 
 	/** Viesti, jolla pyydetään pelioliota tai komponenttia piirtämään itsensä ruudulle
 	*/
 	struct Render : Event {
-		Render(uint64_t msgID) : Event(msgID, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID){}
-		Render(Theron::Address originator, uint32_t msgID) : Event(originator, msgID, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID){}
+		Render(uint64_t msgID) : Event(msgID){}
+		Render(Theron::Address originator, uint32_t msgID) : Event(originator, msgID){}
 	};
 
 	/** Viesti, joka ilmaisee pyydetyn aktorilaskennan päättyneen
 	Viestin id-kenttä ilmaisee sen viestin, jonka käsittely on päättynyt
 	*/
-	struct AllDone : Event {
-		AllDone(uint64_t msgID) : Event(msgID){}
+	struct AllDone : ComponentEvent {
+		AllDone(uint64_t msgID, int senderComponent, int receiverComponent) : ComponentEvent(msgID, senderComponent, receiverComponent){}
 	};
 
 	/** Viesti, joka ilmaisee, että pyydetyssä aktorilaskennassa on kohdattu virhetilanne
 	Viestin id-kenttä ilmaisee sen viestin, jonka käsittely on epäonnistunut
 	*/
-	struct Error : Event {
-		Error(uint64_t msgID) : Event(msgID){}
+	struct Error : ComponentEvent {
+		Error(uint64_t msgID, int senderComponent, int receiverComponent) : ComponentEvent(msgID, senderComponent, receiverComponent){}
 	};
 }
 

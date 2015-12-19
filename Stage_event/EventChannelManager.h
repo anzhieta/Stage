@@ -20,7 +20,7 @@ namespace stage{
 		/** Luo uuden EventChannelManager-aktorin
 		@param fw	Aktoria hallinnoiva Theron::Framework
 		*/
-		EventChannelManager(Theron::Framework& fw): Theron::Actor(fw), tracker(fw, this->GetAddress()){
+		EventChannelManager(Theron::Framework& fw): Theron::Actor(fw), tracker(fw, Destination(this->GetAddress(), INVALID_COMPONENT_ID)){
 			RegisterHandler(this, &EventChannelManager::channelMaintenance);
 			RegisterHandler(this, &EventChannelManager::allDone);
 		}
@@ -44,10 +44,10 @@ namespace stage{
 		@param sender	Pyynnön lähettäjä
 		*/
 		void channelMaintenance(const ChannelMaintenance& msg, Theron::Address sender){
-			if (channels.size() == 0) Send(AllDone(msg.id), sender);
+			if (channels.size() == 0) Send(AllDone(msg.id, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID), sender);
 			ChannelMaintenance newmsg(tracker.getNextID());
 			for (std::list<Theron::Address>::const_iterator it = channels.begin(); it != channels.end(); it++){
-				tracker.trackedSend(msg.id, newmsg, *it, sender);
+				tracker.trackedSend(msg.id, newmsg, *it, Destination(sender, INVALID_COMPONENT_ID));
 			}
 		}
 

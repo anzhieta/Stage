@@ -19,22 +19,8 @@ namespace stage{
 	GameObject::GetComponent (palauttaa GameObject::ComponentFound tai AllDone)
 	*/
 	class Component{
+		friend class GameObject;
 	public:
-		/** Viesti, joka kertoo lähettäjänsä tyyppitunnuksen
-		*/
-		struct ComponentID : Event{
-			/** Lähettäjän tyyppitunnus
-			*/
-			unsigned int compID;
-			ComponentID(uint64_t id, int compID) : Event(id), compID(compID){}
-		};
-
-		/** Viesti, jolla pyydetään komponenttia lähettämään tyyppitunnuksensa
-		*/
-		struct GetComponentID : Event{
-			GetComponentID(uint64_t id) : Event(id){}
-		};
-
 		/** Luo uuden pelimoottorikomponentin.
 		HUOM: luo komponenttiolio aina new:llä äläkä tuhoa sitä itse.
 		Komponenttiolio tuhotaan aina automaattisesti, kun sen omistava peliolio tuhotaan.
@@ -42,14 +28,13 @@ namespace stage{
 		@param owner	Komponentin omistava peliolio
 		*/
 		Component(Theron::Framework &fw, Theron::Address owner);
-	protected:
-		/**	Komponentin omistava peliolio
-		*/
-		Theron::Address owner;
 
-		/** Komponentin tapahtumakontekstien tilaa ylläpitävä olio
+		/** Abstrakti metodi, joka palauttaa komponentin tyyppitunnuksen
+		@returns	Komponentin tyypistä riippuva tunnusluku
 		*/
-		ContextTracker tracker;
+		virtual int id() = 0;
+
+		virtual std::string name() = 0;
 
 		/** Päivittää komponentin tilan.
 		Jos tämä metodi ylikirjoitetaan aliluokassa, komponentti suorittaa laskentaa
@@ -82,31 +67,31 @@ namespace stage{
 		@param from	Viestin lähettäjä
 		*/
 		virtual void error(const Error& msg, Theron::Address from);
-
-		/** Abstrakti metodi, joka palauttaa komponentin tyyppitunnuksen
-		@returns	Komponentin tyypistä riippuva tunnusluku
+				
+	protected:
+		/**	Komponentin omistava peliolio
 		*/
-		virtual int id() = 0;
+		GameObject* owner = nullptr;
 
-		template <class ComponentType, class ValueType>
-		void RegisterHandler(ComponentType* const comp, void (ComponentType::*handler)(const ValueType &message, const Theron::Address from)){
-			owner->registerComponentHandler(comp, handler);
+		/** Komponentin tapahtumakontekstien tilaa ylläpitävä olio
+		*/
+		ContextTracker tracker;					
+
+		template <class ComponentType, class EventType, void (ComponentType::* handler)(const EventType &message, const Theron::Address from)>
+		void RegisterHandler(){
+			owner->registerComponentHandler<ComponentType, EventType, handler>();
 		}
 
-	private:
-		/** Kysyy komponentilta, onko se tiettyä tyyppiä
-		@param msg	Etsityn tyypin tyyppitunnuksen sisältävä viesti
-		@param from	Viestin lähettäjä
-		Vastaa viestillä GameObject::ComponentFound jos tämä komponentti on etsittyä tyyppiä,
-		muutoin viestillä AllDone
-		*/
-		void isType(const GameObject::GetComponent &msg, Theron::Address from);
+		template <class EventType>
+		void Send(const EventType& e, const Theron::Address& address){
+			owner->Send(e, address);
+		}
 
-		/** Kysyy komponentilta sen tyyppitunnusta
-		@param msg	Pyyntöviesti
-		@param from	Pyynnön lähettäjä
-		*/
-		void getId(const GetComponentID &msg, Theron::Address from);
+		void finishPhase(uint64_t id);
+		void abortPhase(uint64_t id);
+		uint64_t createContext(uint64_t oldid, Destination origSender, int responseCount = 1);
+		virtual void initialize(GameObject* owner);
+	private:
 	};
 }
 

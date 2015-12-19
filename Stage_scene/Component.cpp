@@ -3,33 +3,22 @@
 
 using namespace stage;
 
-Component::Component(Theron::Framework &fw, Theron::Address owner) : owner(owner), tracker(fw, owner){
-	RegisterHandler(this, &Component::update);
-	RegisterHandler(this, &Component::render);
-	RegisterHandler(this, &Component::isType);
-	RegisterHandler(this, &Component::allDone);
-	RegisterHandler(this, &Component::error);
-	Send(GameObject::AddComponent(this, tracker.getNextID()), owner);
-	RegisterHandler(this, &Component::getId);
+Component::Component(Theron::Framework &fw, Theron::Address owner) : tracker(fw, Destination(owner, id())){
+	fw.Send(GameObject::AddComponent(this, tracker.getNextID(), id()), owner, owner);
+}
+
+void Component::initialize(GameObject* owner){
+	this->owner = owner;
+	RegisterHandler<Component, AllDone, &Component::allDone>();
+	RegisterHandler<Component, Error, &Component::error>();
 }
 
 void Component::update(const Update &up, Theron::Address from){
-	Send(AllDone(up.id), from);
+	owner->allDone(up.id);
 }
 
 void Component::render(const Render &rend, Theron::Address from){
-	Send(AllDone(rend.id), from);
-}
-
-void Component::isType(const GameObject::GetComponent &msg, Theron::Address from){
-	if (msg.compID == id()){
-		Send(GameObject::ComponentFound(msg.id, this->GetAddress()), from);
-	}
-	else Send(AllDone(msg.id), from);
-}
-
-void Component::getId(const GetComponentID &msg, Theron::Address from){
-	Send(ComponentID(msg.id, id()), from);
+	owner->allDone(rend.id);
 }
 
 void Component::allDone(const AllDone& msg, Theron::Address from){
@@ -41,4 +30,24 @@ void Component::error(const Error& msg, Theron::Address from){
 		tracker.getContext(msg.id).error();
 		tracker.remove(msg.id);
 	}
+}
+
+void Component::finishPhase(uint64_t id){
+	owner->allDone(id);
+}
+
+void Component::abortPhase(uint64_t id){
+	owner->error(id, name());
+}
+
+uint64_t Component::createContext(uint64_t oldid, Destination origSender, int responseCount){
+	uint64_t newid = tracker.getNextID();
+	EventContext& context = tracker.addContext(oldid, newid, origSender, responseCount);
+	context.finalize = [this, &context](){
+		this->finishPhase(context.getOriginalID());
+	};
+	context.error = [this, &context](){
+		this->abortPhase(context.getOriginalID());
+	};
+	return newid;
 }

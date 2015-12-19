@@ -3,12 +3,14 @@
 
 using namespace stage;
 
-EventContext& ContextTracker::addContext(uint64_t oldID, uint64_t newID, Theron::Address originalSender, int responseCount){
+EventContext& ContextTracker::addContext(uint64_t oldID, uint64_t newID, Destination originalSender, int responseCount){
 	pending[newID] = EventContext(oldID, originalSender, responseCount);
 	EventContext& context = pending[newID];
 	//Asetetaan oletuskäsittelijä kontekstin loppuunsuorittamiselle: palautetaan AllDone alkuperäiselle lähettäjälle
 	context.finalize = [this, &context](){
-		this->fw.Send(AllDone(context.getOriginalID()), this->owner, context.getOriginalSender());
+		Destination origSender = context.getOriginalSender();
+		this->fw.Send(AllDone(context.getOriginalID(), this->owner.component, origSender.component), 
+			this->owner.address, origSender.address);
 	};
 	context.error = context.finalize;
 	return context;
@@ -43,7 +45,7 @@ void ContextTracker::remove(uint64_t id){
 
 uint64_t ContextTracker::getNextID(){
 	lastID++;
-	return Event::generateID(owner, lastID);
+	return Event::generateID(owner.address, lastID);
 }
 
 bool ContextTracker::contains(uint64_t id){

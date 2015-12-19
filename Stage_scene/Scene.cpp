@@ -5,7 +5,7 @@
 
 using namespace stage;
 
-Scene::Scene(Theron::Framework &fw) : Theron::Actor(fw), tracker(fw, this->GetAddress()){
+Scene::Scene(Theron::Framework &fw) : Theron::Actor(fw), tracker(fw, Destination(this->GetAddress(), INVALID_COMPONENT_ID)){
 	RegisterHandler(this, &Scene::update);
 	RegisterHandler(this, &Scene::render);
 	RegisterHandler(this, &Scene::allDone);
@@ -16,7 +16,7 @@ Scene::Scene(Theron::Framework &fw) : Theron::Actor(fw), tracker(fw, this->GetAd
 void Scene::createObject(const Scene::CreateObject &msg, Theron::Address sender){
 	GameObject* newObject = new GameObject(this->GetFramework());
 	objects.push_back(newObject);
-	Send(NewObject(msg.id, newObject->GetAddress()), sender);
+	Send(NewObject(msg.id, newObject->GetAddress(), msg.senderComponent), sender);
 }
 
 Scene::~Scene(){
@@ -28,14 +28,14 @@ Scene::~Scene(){
 void Scene::update(const Update &msg, Theron::Address sender){
 	uint64_t id = tracker.getNextID();
 	for (std::list<GameObject*>::iterator it = objects.begin(); it != objects.end(); it++){
-		tracker.trackedSend<Update>(msg.id, Update(msg.elapsedMS, id), (*it)->GetAddress(), sender);
+		tracker.trackedSend<Update>(msg.id, Update(msg.elapsedMS, id), (*it)->GetAddress(), Destination(sender, INVALID_COMPONENT_ID));
 	}
 }
 
 void Scene::render(const Render &msg, Theron::Address sender){
 	uint64_t id = tracker.getNextID();
 	for (std::list<GameObject*>::iterator it = objects.begin(); it != objects.end(); it++){
-		tracker.trackedSend<Render>(msg.id, Render(id), (*it)->GetAddress(), sender);
+		tracker.trackedSend<Render>(msg.id, Render(id), (*it)->GetAddress(), Destination(sender, INVALID_COMPONENT_ID));
 	}
 }
 

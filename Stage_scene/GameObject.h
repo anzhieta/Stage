@@ -21,34 +21,35 @@ namespace stage{
 	GameObject::GetComponent (palauttaa GameObject::ComponentFound tai Error)
 	*/
 	class GameObject : public Theron::Actor{
+		friend class Component;
 	public:
 		/** Viesti, joka pyytää pelioliota liittämään itseensä komponentin
 		Liitetty komponentti siirtyy peliolion hallintaan ja tuhotaan automaattisesti, kun peliolio tuhoutuu
 		*/
-		struct AddComponent : Event {
+		struct AddComponent : ComponentEvent {
 			/** Osoitin liitettävään komponenttiolioon
 			*/
 			Component* component;
-			AddComponent(Component* component, uint64_t id) : component(component), Event(id){}
+			AddComponent(Component* component, uint64_t id, int senderComponent) : component(component), ComponentEvent(id, senderComponent, INVALID_COMPONENT_ID){}
 		};
 
-		/** Hakee peliolion komponenttilistasta tietyntyyppiset komponenttioliot
-		*/
-		struct GetComponent : Event{
-			/** Haettavien komponenttien komponenttitunnus
-			*/
-			int compID;
-			GetComponent(uint64_t id, int compID) : Event(id), compID(compID){}
-		};
-
-		/** Viesti, joka kertoo GetComponent-viestin käsittelyssä löytyneen komponentin osoitteen
-		*/
-		struct ComponentFound : Event{
-			/** Löytyneen komponentin Theron-osoite
-			*/
-			Theron::Address component;
-			ComponentFound(uint64_t id, Theron::Address component) : Event(id), component(component){}
-		};
+//		/** Hakee peliolion komponenttilistasta tietyntyyppiset komponenttioliot
+//		*/
+//		struct GetComponent : Event{
+//			/** Haettavien komponenttien komponenttitunnus
+//			*/
+//			int compID;
+//			GetComponent(uint64_t id, int compID) : Event(id), compID(compID){}
+//		};
+//
+//		/** Viesti, joka kertoo GetComponent-viestin käsittelyssä löytyneen komponentin osoitteen
+//		*/
+//		struct ComponentFound : Event{
+//			/** Löytyneen komponentin Theron-osoite
+//			*/
+//			Theron::Address component;
+//			ComponentFound(uint64_t id, Theron::Address component) : Event(id), component(component){}
+//		};
 
 		/** Luo uuden tyhjän peliolion
 		@param fw	Pelioliota hallinnoiva Theron::Framework
@@ -59,10 +60,22 @@ namespace stage{
 		*/
 		~GameObject();
 
-		template <class ComponentType, class EventType>
-		void registerComponentHandler(ComponentType* c, void (ComponentType::* handler)(const EventType &message, const Theron::Address from){
-			RegisterHandler(c, handler);
+		template <class ComponentType, class EventType, void(ComponentType::* handler)(const EventType &message, const Theron::Address from)>
+		void registerComponentHandler(){
+			RegisterHandler(this, &GameObject::handleComponentMessage<ComponentType, EventType, handler>);
 		}
+
+		template <class ComponentType, class EventType, void (ComponentType::* handler)(const EventType &message, const Theron::Address from)>
+		void handleComponentMessage(const EventType& msg, Theron::Address from){
+			for (std::list<Component*>::iterator i = components.begin(); i != components.end(); i++){
+				if ((*i)->id() == msg.receiverComponent){
+					ComponentType* c = (ComponentType*)(*i);
+					(c->*handler)(msg, from);
+				}
+			}
+		}
+		void allDone(uint64_t id);
+		void error(uint64_t id, const std::string& compname);
 	private:
 		/** Peliolion kaikki komponentit sisältävä lista
 		*/
@@ -94,13 +107,13 @@ namespace stage{
 		@param msg	Haettavan komponenttityypin määrittelevä viesti
 		@param from	Hakupyynnön lähettäjä
 		*/
-		void getComponent(const GetComponent &msg, Theron::Address from);
+//		void getComponent(const GetComponent &msg, Theron::Address from);
 
 		/** Palauttaa getComponent-funktion löytämän komponentin osoitteen alkuperäiselle pyytäjälle
 		@param msg	Komponentin löytymisestä kertova viesti
 		@param from	Komponentin löytymisestä kertovan aktorin osoite
 		*/
-		void componentFound(const ComponentFound &msg, Theron::Address from);
+//		void componentFound(const ComponentFound &msg, Theron::Address from);
 
 		/** Pitää kirjaa komponenttien laskennan edistymisestä
 		@param msg	Ilmoitus komponentin laskennan onnistumisesta
