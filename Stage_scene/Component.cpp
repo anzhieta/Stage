@@ -13,12 +13,12 @@ void Component::initialize(GameObject* owner){
 	RegisterHandler<Component, Error, &Component::error>();
 }
 
-void Component::update(const Update &up, Theron::Address from){
-	owner->allDone(up.id);
+void Component::update(float elapsedMS, uint64_t id){
+	owner->allDone(id);
 }
 
-void Component::render(const Render &rend, Theron::Address from){
-	owner->allDone(rend.id);
+void Component::render(uint64_t id){
+	owner->allDone(id);
 }
 
 void Component::allDone(const AllDone& msg, Theron::Address from){

@@ -76,6 +76,7 @@ namespace stage{
 		}
 		void allDone(uint64_t id);
 		void error(uint64_t id, const std::string& compname);
+		Component* getComponent(int id);
 	private:
 		/** Peliolion kaikki komponentit sisältävä lista
 		*/

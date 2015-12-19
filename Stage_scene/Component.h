@@ -42,7 +42,7 @@ namespace stage{
 		@param up	Päivityspyyntö
 		@param from	Pyynnön lähettäjä
 		*/
-		virtual void update(const Update &up, Theron::Address from);
+		virtual void update(float elapsedMS, uint64_t id);
 
 		/** Piirtää komponentin ruudulle.
 		Jos tämä metodi ylikirjoitetaan aliluokassa, komponentti suorittaa laskentaa
@@ -50,7 +50,7 @@ namespace stage{
 		@param up	Piirtopyyntö
 		@param from	Pyynnön lähettäjä
 		*/
-		virtual void render(const Render &rend, Theron::Address from);
+		virtual void render(uint64_t id);
 
 		/** Oletuskäsittelijä AllDone-viesteille (laskee viestiin liittyvän kontekstin
 		odotettujen vastausten määrää yhdellä)

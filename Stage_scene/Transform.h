@@ -87,6 +87,10 @@ namespace stage{
 		/** Palauttaa koordinaattikomponentin tunnusluvun
 		*/
 		virtual int id(){ return TRANSFORM_ID; }
+		virtual std::string name(){ return std::string("Transform"); }
+
+		glm::mat4& getMatrix(){ return transform; }
+		glm::vec3 getPosition(){ return glm::vec3(transform[3]); };
 
 	protected:
 		virtual void initialize(GameObject* owner);

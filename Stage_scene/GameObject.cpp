@@ -61,7 +61,7 @@ void GameObject::update(const Update &msg, Theron::Address from){
 		uint64_t id = tracker.getNextID();
 		tracker.addContext(msg.id, id, Destination(from, INVALID_COMPONENT_ID), components.size());
 		for (comp_iterator i = components.begin();i != components.end(); i++){
-			(*i)->update(msg, from);
+			(*i)->update(msg.elapsedMS, id);
 		}
 	}
 	
@@ -74,7 +74,7 @@ void GameObject::render(const Render &msg, Theron::Address from){
 		uint64_t id = tracker.getNextID();
 		tracker.addContext(msg.id, id, Destination(from, INVALID_COMPONENT_ID), components.size());
 		for (comp_iterator i = components.begin(); i != components.end(); i++){
-			(*i)->render(msg, from);
+			(*i)->render(id);
 		}
 	}
 }
@@ -95,4 +95,12 @@ void GameObject::error(const Error &msg, Theron::Address from){
 void GameObject::error(uint64_t id, const std::string& compname){
 	LOGERR(std::string("Warning: component ") + compname + " reported error during processing");
 	if (tracker.contains(id)) tracker.decrement(id);
+}
+
+Component* GameObject::getComponent(int id){
+	for (comp_iterator i = components.begin(); i != components.end(); i++){
+		if ((*i)->id() == id) return *i;
+	}
+	LOGERR("Error: game object does not contain component with ID " + id);
+	abort();
 }

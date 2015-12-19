@@ -30,20 +30,21 @@ namespace stage{
 		/** Viesti, joka pyytää kamerakomponenttia asettamaan uuden näkymämatriisin 
 		(Huom. normaalisti kamera hakee omistajaolioltaan näkymämatriisin joka Render-viestin yhteydessä)
 		*/
-		struct SetViewMatrix : public Event{
+		struct SetViewMatrix : public ComponentEvent{
 			/** Uusi näkymämatriisi
 			*/
 			glm::mat4& view;
-			SetViewMatrix(uint64_t id, glm::mat4& view) : Event(id), view(view){}
+			SetViewMatrix(uint64_t id, glm::mat4& view, int senderComponent) : ComponentEvent(id, senderComponent, CAMERA_ID), view(view){}
 		};
 
 		/** Viesti, joka pyytää kamerakomponenttia asettamaan uuden projektiomatriisin 
 		*/
-		struct SetProjectionMatrix : public Event{
+		struct SetProjectionMatrix : public ComponentEvent{
 			/** Uusi projektiomatriisi
 			*/
 			glm::mat4& projection;
-			SetProjectionMatrix(uint64_t id, glm::mat4& projection) : Event(id), projection(projection){}
+			SetProjectionMatrix(uint64_t id, glm::mat4& projection, int senderComponent) : 
+				ComponentEvent(id, senderComponent, CAMERA_ID), projection(projection){}
 		};
 
 		//Metodit
@@ -66,9 +67,6 @@ namespace stage{
 		*/
 		virtual int id(){ return CAMERA_ID; }
 	private:
-		/** Onko komponentti käynnistetty, eli voiko se suorittaa update- ja render-kutsuja
-		*/
-		bool init = false;
 
 		/** Komponentin kameraolio
 		*/
@@ -76,7 +74,7 @@ namespace stage{
 
 		/** Omistajaolion sijaintia ylläpitävän olion osoite
 		*/
-		Theron::Address transform;
+		Transform* transform;
 
 		//Metodit
 
@@ -84,19 +82,13 @@ namespace stage{
 		@param msg		Sijaintiolion komponenttitunnuksen sisältävä viesti
 		@param sender	Sijaintiolion osoite
 		*/
-		void initialize(const GameObject::ComponentFound &msg, Theron::Address sender);
+		void initialize(GameObject* owner);
 
 		/** Suorittaa tarvittavan laskennan ruudun piirtoa varten
 		@param msg		Renderöintipyyntö
 		@param sender	Lähettäjän osoite
 		*/
-		virtual void render(const Render& msg, Theron::Address sender);
-
-		/** Suorittaa loppuun tarvittavan laskennan ruudun piirtoa varten
-		@param msg		Kameran uusi näkymämatriisi
-		@param sender	Lähettäjän osoite
-		*/
-		void completeRender(const Transform::Matrix& msg, Theron::Address sender);
+		virtual void render(uint64_t id);
 
 		/** Asettaa kameralle uuden näkymämatriisin
 		@param msg		Kameran uusi näkymämatriisi
