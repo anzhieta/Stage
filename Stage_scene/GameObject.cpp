@@ -27,31 +27,8 @@ GameObject::~GameObject(){
 void GameObject::addComponent(const AddComponent &msg, Theron::Address from){
 	components.push_back(msg.component);
 	msg.component->initialize(this);
+	Send(AllDone(msg.id, INVALID_COMPONENT_ID, msg.notifyDestination.component), msg.notifyDestination.address);
 }
-/*
-void GameObject::getComponent(const GetComponent &msg, Theron::Address from){
-	uint64_t id = tracker.getNextID();
-	GetComponent newMsg(id, msg.compID);
-	for (comp_iterator i = components.begin(); i != components.end(); i++){
-		tracker.trackedSend<GetComponent>(msg.id, newMsg, (*i)->GetAddress(), from);
-	}
-	tracker.setVariable<bool>(id, 0, false);
-	EventContext& ev = tracker.getContext(id);
-	ev.finalize = [this, &ev](){
-		bool result = boost::any_cast<bool>(ev.getVar(0));
-		if (!result){
-			this->GetFramework().Send(Error(ev.getOriginalID()), this->GetAddress(), ev.getOriginalSender());
-		}
-	};
-}
-
-void GameObject::componentFound(const ComponentFound &msg, Theron::Address from){
-	if (tracker.contains(msg.id)){
-		Send(ComponentFound(tracker.getContext(msg.id).getOriginalID(), msg.component), tracker.getContext(msg.id).getOriginalSender());
-		tracker.setVariable<bool>(msg.id, 0, true);
-		tracker.decrement(msg.id);
-	}
-}*/
 
 void GameObject::update(const Update &msg, Theron::Address from){
 	if (components.size() == 0){
@@ -80,7 +57,7 @@ void GameObject::render(const Render &msg, Theron::Address from){
 }
 
 void GameObject::allDone(const AllDone &msg, Theron::Address from){
-	if (tracker.contains(msg.id)) tracker.decrement(msg.id);
+	if (msg.receiverComponent == INVALID_COMPONENT_ID && tracker.contains(msg.id)) tracker.decrement(msg.id);
 }
 
 void GameObject::allDone(uint64_t id){
@@ -88,8 +65,8 @@ void GameObject::allDone(uint64_t id){
 }
 
 void GameObject::error(const Error &msg, Theron::Address from){
-	LOGERR(std::string("Warning: component ") + from.AsString() + " reported error during processing");
-	if (tracker.contains(msg.id)) tracker.decrement(msg.id);
+	LOGERR(std::string("Warning: object ") + from.AsString() + " reported error during processing");
+	if (msg.receiverComponent == INVALID_COMPONENT_ID && tracker.contains(msg.id)) tracker.decrement(msg.id);
 }
 
 void GameObject::error(uint64_t id, const std::string& compname){

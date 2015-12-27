@@ -3,8 +3,7 @@
 
 using namespace stage;
 
-Component::Component(Theron::Framework &fw, Theron::Address owner) : tracker(fw, Destination(owner, id())){
-	fw.Send(GameObject::AddComponent(this, tracker.getNextID(), id()), owner, owner);
+Component::Component(Theron::Framework &fw, Theron::Address owner) : tracker(fw, Destination(owner, INVALID_COMPONENT_ID)){	
 }
 
 void Component::initialize(GameObject* owner){
@@ -40,9 +39,21 @@ void Component::abortPhase(uint64_t id){
 	owner->error(id, name());
 }
 
-uint64_t Component::createContext(uint64_t oldid, Destination origSender, int responseCount){
+uint64_t Component::createActorContext(uint64_t oldid, Destination origSender, int responseCount){
 	uint64_t newid = tracker.getNextID();
 	EventContext& context = tracker.addContext(oldid, newid, origSender, responseCount);
+	context.finalize = [this, &context](){
+		Send(AllDone(context.getOriginalID(), id(), context.getOriginalSender().component), context.getOriginalSender().address);
+	};
+	context.error = [this, &context](){
+		Send(Error(context.getOriginalID(), id(), context.getOriginalSender().component), context.getOriginalSender().address);
+	};
+	return newid;
+}
+
+uint64_t Component::createStandardContext(uint64_t oldid, int responseCount){
+	uint64_t newid = tracker.getNextID();
+	EventContext& context = tracker.addContext(oldid, newid, Destination(Theron::Address::Null(), INVALID_COMPONENT_ID), responseCount);
 	context.finalize = [this, &context](){
 		this->finishPhase(context.getOriginalID());
 	};

@@ -21,17 +21,15 @@ namespace stage {
 	public:
 		/** Viesti, joka lisää uuden 3D-mallin seuraavassa ruudunpäivityksessä piirrettävien mallien listalle
 		*/
-		struct Queue : public Event{
+		struct Queue : public ComponentEvent{
 			/** Piirrettävä 3D-malli
 			*/
 			stage_common::Model* model;
 			/** Sijainti pelimaailmassa, johon malli piirretään
 			*/
-			const glm::mat4& position;
-			Queue(Theron::Address originator, uint32_t msgID, stage_common::Model* mod, glm::mat4& pos):
-				Event(originator, msgID), model(mod), position(pos){}
-			Queue(uint64_t msgID, stage_common::Model* mod, const glm::mat4& pos) :
-				Event(msgID), model(mod), position(pos){}
+			const glm::mat4 position;
+			Queue(uint64_t msgID, stage_common::Model* mod, glm::mat4 pos, int senderComponent) :
+				ComponentEvent(msgID, senderComponent, INVALID_COMPONENT_ID), model(mod), position(pos){}
 		};
 
 		/** Luo uuden grafiikkamoottoria hallinnoivan aktorin ja avaa peli-ikkunan

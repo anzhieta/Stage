@@ -24,24 +24,24 @@ namespace stage {
 		/** Viesti, jolla lisätään uusi vastaaottaja kanavan vastaanottajalistaan
 		*/
 		struct RegisterRecipient {
-			RegisterRecipient(Theron::Address &rec) : recipient(rec){}
+			RegisterRecipient(Destination rec) : recipient(rec){}
 			/** Rekisteröitävän aktorin Theron-osoite
 			*/
-			Theron::Address recipient;
+			Destination recipient;
 		};
 		/** Viesti, jolla poistetaan vastaanottaja vastaanottajalistasta
 		*/
 		struct DeregisterRecipient {
-			DeregisterRecipient(Theron::Address &rec) : recipient(rec){}
+			DeregisterRecipient(Destination rec) : recipient(rec){}
 			/** Poistettavan aktorin Theron-osoite
 			*/
-			Theron::Address recipient;
+			Destination recipient;
 		};
 
 		/** Luo uuden tapahtumakanavan
 		@param fw	Tapahtumakanavaa hallinnoiva Theron::Framework
 		*/
-		EventChannel(Theron::Framework& fw) : Theron::Actor(fw), recipients(), tracker(fw, this->GetAddress()){
+		EventChannel(Theron::Framework& fw) : Theron::Actor(fw), recipients(), tracker(fw, Destination(this->GetAddress(), INVALID_COMPONENT_ID)){
 			RegisterHandler(this, &EventChannel<MessageType>::forward);
 			RegisterHandler(this, &EventChannel<MessageType>::registerRecipient);
 			RegisterHandler(this, &EventChannel<MessageType>::deregisterRecipient);
@@ -54,20 +54,20 @@ namespace stage {
 		Säieturvallinen pelisilmukan päivitys- ja piirtovaiheissa
 		@returns	Kanavaa kuuntelemaan rekisteröityneet aktorit
 		*/
-		const std::list<Theron::Address>& getRecipients(){
+		const std::list<Destination>& getRecipients(){
 			return recipients;
 		}
 		
 	private:
 		/** Lista aktoreista, jotka ovat rekisteröityneet kuuntelemaan kanavaa
 		*/
-		std::list<Theron::Address> recipients;
+		std::list<Destination> recipients;
 		/** Lista aktoreista, jotka lisätään kuuntelijalistaan ruudunpäivityksen lopussa
 		*/
-		std::list<Theron::Address> pendingAdd;
+		std::list<Destination> pendingAdd;
 		/** Lista aktoreista, jotka poistetaan kuuntelijalistasta ruudunpäivityksen lopussa
 		*/
-		std::list<Theron::Address> pendingRemove;
+		std::list<Destination> pendingRemove;
 		/** Tapahtumakanavan konteksteista kirjaa pitävä olio
 		*/
 		ContextTracker tracker;
@@ -79,15 +79,15 @@ namespace stage {
 		*/
 		void forward(const MessageType &msg, const Theron::Address from){
 			int sent = 0;
-			for (std::list<Theron::Address>::const_iterator it = recipients.begin(); it != recipients.end(); it++){
-				if (*it != from){
-					tracker.trackedSend(msg.id, msg, *it, from);
+			for (std::list<Destination>::const_iterator it = recipients.begin(); it != recipients.end(); it++){
+				if (!((*it).address == from && (*it).component == msg.senderComponent)){
+					tracker.trackedSend(msg.id, msg, (*it).address, Destination(from, msg.senderComponent));
 					sent++;
 				}
 			}
 			if (sent == 0){
 				//Jos ei kuuntelijoita, kaikki valmista
-				Send(AllDone(msg.id), from);
+				Send(AllDone(msg.id, INVALID_COMPONENT_ID, msg.senderComponent), from);
 			}
 		}
 		/** Liittää uuden kuuntelijan kuuntelijalistaan ruudunpäivityksen lopussa
@@ -109,17 +109,17 @@ namespace stage {
 		@param from	Pyynnön lähettäjä
 		*/
 		void channelMaintenance(const EventChannelManager::ChannelMaintenance& msg, const Theron::Address from){
-			for (std::list<Theron::Address>::const_iterator it = pendingAdd.begin(); it != pendingAdd.end(); it++){
+			for (std::list<Destination>::const_iterator it = pendingAdd.begin(); it != pendingAdd.end(); it++){
 				recipients.push_back(*it);
 			}
 			pendingAdd.clear();
-			for (std::list<Theron::Address>::const_iterator it1 = pendingRemove.begin(); it1 != pendingRemove.end(); it1++){
-				for (std::list<Theron::Address>::const_iterator it2 = recipients.begin(); it2 != recipients.end(); it2++){
+			for (std::list<Destination>::const_iterator it1 = pendingRemove.begin(); it1 != pendingRemove.end(); it1++){
+				for (std::list<Destination>::const_iterator it2 = recipients.begin(); it2 != recipients.end(); it2++){
 					if (*it1 == *it2) recipients.erase(it2);
 				}
 			}
 			pendingRemove.clear();
-			Send(AllDone(msg.id), from);
+			Send(AllDone(msg.id, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID), from);
 		}
 
 		/**Käsittelee eteenpäin lähetettyjen viestien käsittelyn päättymisestä ilmoittavat viestit

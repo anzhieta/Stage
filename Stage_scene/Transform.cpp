@@ -3,7 +3,8 @@
 
 using namespace stage;
 
-Transform::Transform(Theron::Framework& fw, Theron::Address owner, glm::mat4& tr) : Component(fw, owner), transform(tr){
+Transform::Transform(Theron::Framework& fw, Theron::Address owner, Destination notifyDest, uint64_t notifyID, glm::mat4& tr) : Component(fw, owner), transform(tr){
+	registerSelf(fw, owner, notifyDest, notifyID);
 }
 
 void Transform::initialize(GameObject* owner){

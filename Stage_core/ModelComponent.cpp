@@ -5,39 +5,21 @@
 using namespace stage;
 
 //---Kontekstiyksikkö alkaa--
-ModelComponent::ModelComponent(Theron::Framework& fw, stage_common::Model* mod, Theron::Address owner) : Component(fw, owner), mod(mod){
-	RegisterHandler(this, &ModelComponent::initialize);
-	//Haetaan isäntäolion sijaintikomponentti, jotta malli voidaan piirtää oikeaan paikkaan
-	uint64_t msgid = tracker.getNextID();
-	EventContext& ev = tracker.addContext(0, msgid, Theron::Address::Null());
-	ev.finalize = [](){};
-	ev.error = [this](){
-		LOGMSG("Error: Attempted to initialize model component, but owner does not have a transform");
-	};
-	Send(GameObject::GetComponent(msgid, TRANSFORM_ID), owner);
-	RegisterHandler(this, &ModelComponent::completeRender);
+ModelComponent::ModelComponent(Theron::Framework& fw, stage_common::Model* mod, Theron::Address owner, Destination notifyDest, uint64_t notifyID
+	) : Component(fw, owner), mod(mod){
+	registerSelf(fw, owner, notifyDest, notifyID);
 }
 
-void ModelComponent::initialize(const GameObject::ComponentFound& msg, Theron::Address sender){
-	if (!tracker.contains(msg.id)) return;
-	tracker.decrement(msg.id);
-	transform = msg.component;
-	DeregisterHandler(this, &ModelComponent::initialize);
-	init = true;
+void ModelComponent::initialize(GameObject* owner){
+	Component::initialize(owner);
+	transform = (Transform*)owner->getComponent(TRANSFORM_ID);
 }
 //---Kontekstiyksikkö päättyy--
 
 //---Kontekstiyksikkö alkaa--
-void ModelComponent::render(const Render& msg, Theron::Address sender){
-	if (!init) return;
-	uint64_t id = tracker.getNextID();
-	tracker.addContext(msg.id, id, sender);
-	//Haetaan isäntäolion nykyinen sijainti, jotta malli voidaan piirtää oikeaan paikkaan
-	Send(Transform::GetMatrix(id), transform);
+void ModelComponent::render(uint64_t oldid){
+	uint64_t id = createStandardContext(oldid);	
+	Send(GraphicsControlActor::Queue(id, mod, transform->getMatrix(), MODEL_ID), GraphicsControlActor::getGlobalController());
 }
 
-void ModelComponent::completeRender(const Transform::Matrix& msg, Theron::Address sender){
-	if (!tracker.contains(msg.id)) return;
-	Send(GraphicsControlActor::Queue(msg.id, mod, msg.matrix), GraphicsControlActor::getGlobalController());
-}
 //---Kontekstiyksikkö päättyy--

@@ -23,16 +23,11 @@ namespace stage{
 		@param radius					Pallotörmäyshahmon säde
 		@param collisionEventChannel	Fysiikkaolioiden törmäystarkistusviestien käyttämä tapahtumakanava
 		*/
-		StaticGeometryComponent(Theron::Framework& fw, Theron::Address owner, float radius, Theron::Address transform, 
-			Theron::Address collisionEventChannel) : Component(fw, owner), transform(transform), collisionEventChannel(collisionEventChannel){
-			//Rekisteröidään käsittelijä alustuksen suorittamiselle loppuun
-			RegisterHandler(this, &StaticGeometryComponent::finishSphereSetup);
-			//Konstruktoreille yhteiset alustukset
-			uint64_t id = setup();
-			//Talletetaan törmäyshahmon säde kontekstimuuttujaan
-			tracker.setVariable<float>(id, 0, radius);
-			Send(Transform::GetPosition(id), transform);
-			//Suoritus jatkuu metodissa finishSphereSetup
+		StaticGeometryComponent(Theron::Framework& fw, Theron::Address owner, Destination notifyDest, uint64_t notifyID, float radius,
+			Theron::Address collisionEventChannel) : Component(fw, owner), collisionEventChannel(collisionEventChannel){
+
+			collider = new stage_common::SphereCollider(radius, glm::vec3());
+			registerSelf(fw, owner, notifyDest, notifyID);
 		}
 
 		/** Luo uuden staattisen törmäyskomponentin AABB-törmäyshahmolla (Axis-aligned bounding box)
@@ -42,24 +37,30 @@ namespace stage{
 		@param radius					AABB-törmäyshahmon koko
 		@param collisionEventChannel	Fysiikkaolioiden törmäystarkistusviestien käyttämä tapahtumakanava
 		*/
-		StaticGeometryComponent(Theron::Framework& fw, Theron::Address owner, glm::vec3 size, Theron::Address transform,
-			Theron::Address collisionEventChannel) : Component(fw, owner), transform(transform), collisionEventChannel(collisionEventChannel){
-			//Rekisteröidään käsittelijä alustuksen suorittamiselle loppuun
-			RegisterHandler(this, &StaticGeometryComponent::finishAABBSetup);
-			//Konstruktoreille yhteiset alustukset
-			uint64_t id = setup();
-			//Talletetaan törmäyshahmon koko kontekstimuuttujaan
-			tracker.setVariable<glm::vec3>(id, 0, size);
-			Send(Transform::GetPosition(id), transform);
-			//Suoritus jatkuu metodissa finishAABBSetup
+		StaticGeometryComponent(Theron::Framework& fw, Theron::Address owner, Destination notifyDest, uint64_t notifyID, glm::vec3 size,
+			Theron::Address collisionEventChannel) : Component(fw, owner), collisionEventChannel(collisionEventChannel){
+
+			collider = new stage_common::AABBCollider(size, glm::vec3());
+			registerSelf(fw, owner, notifyDest, notifyID);
 		}
-				
+
+		virtual void initialize(GameObject* owner){
+			Component::initialize(owner);
+			RegisterHandler<StaticGeometryComponent, PhysicsComponent::CollisionCheck, &StaticGeometryComponent::collisionCheck>();
+			Send(EventChannel<PhysicsComponent::CollisionCheck>::RegisterRecipient(
+				Destination(owner->GetAddress(), STATICGEOMETRYCOMPONENT_ID)), collisionEventChannel);
+			transform = (Transform*)owner->getComponent(TRANSFORM_ID);
+			collider->center = transform->getPosition();
+		}
+						
 		/** Hakee staatisen törmäyskomponentin komponenttitunnuksen
 		@returns	Komponentin tunnusluku
 		*/
 		int id(){
 			return STATICGEOMETRYCOMPONENT_ID;
 		}
+
+		std::string name(){ return "Simple Static Level Geometry"; }
 
 		/** Tuhoaa staattisen törmäyskomponentin
 		*/
@@ -73,45 +74,23 @@ namespace stage{
 
 		/** Komponentin isäntäolion sijaintia ylläpitävän olion Theron-osoite
 		*/
-		Theron::Address transform;
+		Transform* transform;
 
 		/** Törmäysviestikanavan osoite
 		*/
 		Theron::Address collisionEventChannel;
-
-		/** Onko tämän komponentin alustus suoritettu loppuun
-		*/
-		bool init = false;
-
+		
 		//--Kontekstiyksikkö alkaa--
 
 		/** Päivittää komponentin tilan
 		@param up		Tilanpäivityspyyntö
 		@param sende	Pyynnön lähettäjä
 		*/
-		void update(const Update &up, Theron::Address from){
-			if (!init){
-				//Ei tehdä mitään, jos alustusta ei vielä ole suoritettu loppuun
-				Send(AllDone(up.id), from);
-				return;
-			}
+		void update(float elapsedMS, uint64_t id){
 			//Haetaan uudestaan peliolion sijainti, sillä jokin muu komponentti on ehkä
 			//muuttanut sitä
-			uint64_t id = tracker.getNextID();
-			tracker.addContext(up.id, id, from);
-			Send(Transform::GetPosition(id), transform);
-			//Suoritus jatkuu metodissa finishUpdate
-		}
-
-		/** Suorittaa tilanpäivityksen loppuun
-		@param msg	Peliolion sijainnin sisältävä viesti
-		@param from	Viestin lähettäjä
-		*/
-		void finishUpdate(const Transform::Position& msg, Theron::Address from){
-			//Päivitetään törmäyshahmon sijainti
-			collider->center = msg.position;
-			//Poistetaan konteksti, jolloin vastausviesti Update-viestiin lähtee automaattisesti
-			tracker.decrement(msg.id);
+			collider->center = transform->getPosition();
+			finishPhase(id);
 		}
 
 		//--Kontekstiyksikkö päättyy--
@@ -121,61 +100,18 @@ namespace stage{
 		@param from	Viestin lähettäjä
 		*/
 		void collisionCheck(const PhysicsComponent::CollisionCheck& msg, Theron::Address from){
-			if (!init){
-				//Ei tehdä mitään, jos alustusta ei vielä ole suoritettu loppuun
-				Send(AllDone(msg.id), from);
-				return;
-			}
 			//Ei tehdä mitään, jos törmäystä ei ole tapahtunut
-			if (!collider->checkCollision(msg.coll)) Send(AllDone(msg.id), from);
+			if (!collider->checkCollision(msg.coll)){
+				Send(AllDone(msg.id, STATICGEOMETRYCOMPONENT_ID, msg.senderComponent), from);
+			}
 			else {
 				//Luodaan konteksti törmäyksen käsittelyä varten
-				uint64_t id = tracker.getNextID();
-				tracker.addContext(msg.id, id, from);
+				uint64_t id = createActorContext(msg.id, Destination(from, msg.senderComponent));
 				//Lähetetään ilmoitus törmäyksestä
-				Send(PhysicsComponent::StaticCollision(id, *collider), msg.originator);
+				Send(PhysicsComponent::StaticCollision(id, *collider, STATICGEOMETRYCOMPONENT_ID, msg.senderComponent), msg.originator);
 			}
 		}
 
-		/** Suoritetaan komponentin alustus loppuun ja asetetaan törmäyshahmoksi pallo
-		@param msg		Peliolion sijainnin sisältävä viesti
-		@param sender	Viestin lähettäjä
-		*/
-		void finishSphereSetup(const Transform::Position& msg, Theron::Address sender){
-			DeregisterHandler(this, &StaticGeometryComponent::finishSphereSetup);
-			RegisterHandler(this, &StaticGeometryComponent::finishUpdate);
-			//Luodaan törmäyshahmo kontekstimuuttujasta haettavalla säteellä ja viestin sisältämällä sijainnilla
-			collider = new stage_common::SphereCollider(tracker.getVariable<float>(msg.id, 0), msg.position);
-			init = true;
-			tracker.decrement(msg.id);
-		}
-		/** Suoritetaan komponentin alustus loppuun ja asetetaan törmäyshahmoksi AABB (Axis-Aligned Bounding Box)
-		@param msg		Peliolion sijainnin sisältävä viesti
-		@param sender	Viestin lähettäjä
-		*/
-		void finishAABBSetup(const Transform::Position& msg, Theron::Address sender){
-			DeregisterHandler(this, &StaticGeometryComponent::finishAABBSetup);
-			RegisterHandler(this, &StaticGeometryComponent::finishUpdate);
-			//Luodaan törmäyshahmo kontekstimuuttujasta haettavalla koolla ja viestin sisältämällä sijainnilla
-			collider = new stage_common::AABBCollider(tracker.getVariable<glm::vec3>(msg.id, 0), msg.position);
-			init = true;
-			tracker.decrement(msg.id);
-		}
-
-		/** Molemmille konstruktoreille yhteiset alustukset suorittava metodi
-		@returns	Konteksti-ID, jota käytetään alustusviestien tunnistamiseen
-		*/
-		uint64_t setup(){
-			RegisterHandler(this, &StaticGeometryComponent::collisionCheck);
-			//Luodaan uusi viestikonteksti alustuksen loppuunsuorittamista varten
-			uint64_t id = tracker.getNextID();
-			EventContext& context = tracker.addContext(0, id, Theron::Address::Null());
-			context.finalize = [](){};
-			context.error = context.finalize;
-			//Rekisteröidään peliolio törmäystapahtumakanavan viestien vastaanottajaksi
-			Send(EventChannel<PhysicsComponent::CollisionCheck>::RegisterRecipient(this->GetAddress()), collisionEventChannel);
-			return id;
-		}
 	};
 }
 

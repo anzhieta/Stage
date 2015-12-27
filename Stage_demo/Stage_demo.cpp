@@ -125,17 +125,24 @@ int _tmain(int argc, _TCHAR* argv[])
 	Theron::Catcher<AllDone> adCatcher;
 	rec.RegisterHandler(&catcher, &Theron::Catcher<Scene::NewObject>::Push);
 	adRec.RegisterHandler(&adCatcher, &Theron::Catcher<AllDone>::Push);
+	Destination adDest(adRec.GetAddress(), INVALID_COMPONENT_ID);
+	AllDone ad(0, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID);
 
-
-	Scene::NewObject camobject(0, Theron::Address::Null());
+	Scene::NewObject camobject(0, Theron::Address::Null(), INVALID_COMPONENT_ID);
 	Theron::Address temp;
 	//Luodaan kameraolio
-	fw.Send(Scene::CreateObject(0), rec.GetAddress(), sc);
+	fw.Send(Scene::CreateObject(0, INVALID_COMPONENT_ID), rec.GetAddress(), sc);
+
 	rec.Wait();
 	catcher.Pop(camobject, temp);
 	//Kameran sijaintiolio
-	Transform* tr1 = new Transform(fw, camobject.object);
-	fw.Send(Transform::SetMatrix(0, glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -SCALE * 2))), adRec.GetAddress(), tr1->GetAddress());
+	Transform* tr1 = new Transform(fw, camobject.object, adDest, 0);
+	adRec.Wait();
+	adCatcher.Pop(ad, temp);
+	
+	fw.Send(Transform::SetMatrix(0, glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -SCALE * 2)), INVALID_COMPONENT_ID), adRec.GetAddress(), camobject.object);
+	adRec.Wait();
+	adCatcher.Pop(ad, temp);
 
 	glm::mat4 Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, SCALE * 10.0f);
 	glm::mat4 View = glm::lookAt(
@@ -144,13 +151,21 @@ int _tmain(int argc, _TCHAR* argv[])
 		glm::vec3(0, 1, 0)
 	);
 	//Kameran kamerakomponentti
-	CameraComponent* cam = new CameraComponent(fw, camobject.object);
-	fw.Send(CameraComponent::SetViewMatrix(0, View), adRec.GetAddress(), cam->GetAddress());
-	fw.Send(CameraComponent::SetProjectionMatrix(0, Projection), adRec.GetAddress(), cam->GetAddress());
+	CameraComponent* cam = new CameraComponent(fw, camobject.object, adDest, 0);
+	adRec.Wait();
+	adCatcher.Pop(ad, temp);
+	fw.Send(CameraComponent::SetViewMatrix(0, View, INVALID_COMPONENT_ID), adRec.GetAddress(), camobject.object);
+	adRec.Wait();
+	adCatcher.Pop(ad, temp);
+	fw.Send(CameraComponent::SetProjectionMatrix(0, Projection, INVALID_COMPONENT_ID), adRec.GetAddress(), camobject.object);
+	adRec.Wait();
+	adCatcher.Pop(ad, temp);
 	//Asetetaan luotu kamera aktiiviseksi
 	loop.setActiveCamera(cam->getRawCamera());
 	//Kameran näppäimistöohjaus
-	CameraControlComponent* camcc = new CameraControlComponent(fw, camobject.object, tr1->GetAddress());
+	CameraControlComponent* camcc = new CameraControlComponent(fw, camobject.object, adDest, 0);
+	adRec.Wait();
+	adCatcher.Pop(ad, temp);
 
 	GameObjectFactory& factory = GameObjectFactory::getSingleton();
 

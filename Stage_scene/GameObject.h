@@ -26,31 +26,15 @@ namespace stage{
 		/** Viesti, joka pyytää pelioliota liittämään itseensä komponentin
 		Liitetty komponentti siirtyy peliolion hallintaan ja tuhotaan automaattisesti, kun peliolio tuhoutuu
 		*/
-		struct AddComponent : ComponentEvent {
+		struct AddComponent : Event {
 			/** Osoitin liitettävään komponenttiolioon
 			*/
 			Component* component;
-			AddComponent(Component* component, uint64_t id, int senderComponent) : component(component), ComponentEvent(id, senderComponent, INVALID_COMPONENT_ID){}
+			Destination notifyDestination;
+			AddComponent(Component* component, uint64_t id, Destination notifyDestination) : 
+				component(component), Event(id), notifyDestination(notifyDestination){}
 		};
-
-//		/** Hakee peliolion komponenttilistasta tietyntyyppiset komponenttioliot
-//		*/
-//		struct GetComponent : Event{
-//			/** Haettavien komponenttien komponenttitunnus
-//			*/
-//			int compID;
-//			GetComponent(uint64_t id, int compID) : Event(id), compID(compID){}
-//		};
-//
-//		/** Viesti, joka kertoo GetComponent-viestin käsittelyssä löytyneen komponentin osoitteen
-//		*/
-//		struct ComponentFound : Event{
-//			/** Löytyneen komponentin Theron-osoite
-//			*/
-//			Theron::Address component;
-//			ComponentFound(uint64_t id, Theron::Address component) : Event(id), component(component){}
-//		};
-
+		
 		/** Luo uuden tyhjän peliolion
 		@param fw	Pelioliota hallinnoiva Theron::Framework
 		*/

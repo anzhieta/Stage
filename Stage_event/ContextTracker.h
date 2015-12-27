@@ -20,6 +20,10 @@ namespace stage{
 		*/
 		ContextTracker(Theron::Framework& fw, Destination owner) : fw(fw), owner(owner), pending(){	}
 
+		void setOwner(Destination owner){
+			this->owner = owner;
+		}
+
 		/** Luo uuden tapahtumakontekstin.
 		@param oldID			Sen viestin tunnus, jonka seurauksena tämä konteksti luodaan
 		@param newID			Tähän kontekstiin liittyvien viestien tunnus

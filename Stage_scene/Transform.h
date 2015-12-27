@@ -82,15 +82,21 @@ namespace stage{
 		@param owner	Komponentin omistava peliolio
 		@param tr		Komponentin alkutilaa kuvaava 4x4-matriisi
 		*/
-		Transform(Theron::Framework& fw, Theron::Address owner, glm::mat4& tr = glm::mat4());
+		Transform(Theron::Framework& fw, Theron::Address owner, Destination notifyDest, uint64_t notifyID, glm::mat4& tr = glm::mat4());
 		
 		/** Palauttaa koordinaattikomponentin tunnusluvun
 		*/
 		virtual int id(){ return TRANSFORM_ID; }
 		virtual std::string name(){ return std::string("Transform"); }
 
-		glm::mat4& getMatrix(){ return transform; }
+		glm::mat4 getMatrix(){ return transform; }
 		glm::vec3 getPosition(){ return glm::vec3(transform[3]); };
+		void setMatrix(glm::mat4& matrix){
+			transform = matrix;
+		}
+		void translate(glm::vec3 translation){
+			transform = glm::translate(transform, translation);
+		}
 
 	protected:
 		virtual void initialize(GameObject* owner);

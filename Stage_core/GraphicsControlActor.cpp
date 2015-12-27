@@ -26,5 +26,5 @@ GraphicsControlActor::~GraphicsControlActor(){
 
 void GraphicsControlActor::queue(const Queue& msg, Theron::Address sender){
 	gc.queue(msg.model, msg.position);
-	Send(AllDone(msg.id), sender);
+	Send(AllDone(msg.id, INVALID_COMPONENT_ID, msg.senderComponent), sender);
 }

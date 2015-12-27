@@ -54,7 +54,7 @@ namespace stage{
 		@param fw		Theron::Framework, jonka alaisuudessa tämä komponentti toimii
 		@param owner	Sen peliolion osoite, joka omistaa tämän komponentin
 		*/
-		CameraComponent(Theron::Framework& fw, Theron::Address owner);
+		CameraComponent(Theron::Framework& fw, Theron::Address owner, Destination notifyDest, uint64_t notifyID);
 		
 		/** Hakee osoittimen tämän komponentin kameraolioon
 		HUOM: ei säieturvallinen, älä käytä paluuarvoa pelimoottorin ollessa käynnissä
@@ -66,6 +66,7 @@ namespace stage{
 		@returns	Tämän komponentin tunnus
 		*/
 		virtual int id(){ return CAMERA_ID; }
+		virtual std::string name() { return std::string("Camera"); }
 	private:
 
 		/** Komponentin kameraolio

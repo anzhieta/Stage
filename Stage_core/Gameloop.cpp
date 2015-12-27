@@ -66,9 +66,9 @@ void Gameloop::loop() {
 	Theron::Address sender;
 
 	//Placeholder-viestit catchereitä varten
-	AllDone adMSG(0);
-	SetActiveScene sasMSG(0,0);
-	CreateScene csMSG(0);
+	AllDone adMSG(0, INVALID_COMPONENT_ID, INVALID_COMPONENT_ID);
+	SetActiveScene sasMSG(0,0, INVALID_COMPONENT_ID);
+	CreateScene csMSG(0, INVALID_COMPONENT_ID);
 
 	Theron::Address recAddress = receiver.GetAddress();
 	stage_common::Timer upTimer;	//Päivitysajastin
@@ -92,16 +92,16 @@ void Gameloop::loop() {
 			while (!createSceneCatcher.Empty()){
 				createSceneCatcher.Pop(csMSG, sender);
 				Theron::Address newScene = createScene();
-				fw.Send(NewScene(csMSG.id, scenes.size() - 1, newScene), recAddress, sender);
+				fw.Send(NewScene(csMSG.id, scenes.size() - 1, newScene, csMSG.senderComponent), recAddress, sender);
 			}
 
 			//Vaihdetaan pelialuetta
 			while (!setSceneCatcher.Empty()){
 				setSceneCatcher.Pop(sasMSG, sender);
 				if (setActiveScene(sasMSG.scene)){
-					fw.Send(AllDone(sasMSG.id), recAddress, sender);
+					fw.Send(AllDone(sasMSG.id, INVALID_COMPONENT_ID, sasMSG.senderComponent), recAddress, sender);
 				}
-				else fw.Send(Error(sasMSG.id), recAddress, sender);
+				else fw.Send(Error(sasMSG.id, INVALID_COMPONENT_ID, sasMSG.senderComponent), recAddress, sender);
 			}
 		}
 		doneCatcher.Pop(adMSG, sender);

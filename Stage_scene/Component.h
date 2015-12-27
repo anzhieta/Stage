@@ -29,6 +29,8 @@ namespace stage{
 		*/
 		Component(Theron::Framework &fw, Theron::Address owner);
 
+		virtual ~Component(){}
+
 		/** Abstrakti metodi, joka palauttaa komponentin tyyppitunnuksen
 		@returns	Komponentin tyypistä riippuva tunnusluku
 		*/
@@ -75,7 +77,12 @@ namespace stage{
 
 		/** Komponentin tapahtumakontekstien tilaa ylläpitävä olio
 		*/
-		ContextTracker tracker;					
+		ContextTracker tracker;
+
+		void registerSelf(Theron::Framework &fw, Theron::Address owner, Destination notifyDestination, uint64_t notifyID){
+			tracker.setOwner(Destination(owner, id()));
+			fw.Send(GameObject::AddComponent(this, notifyID, notifyDestination), owner, owner);
+		}
 
 		template <class ComponentType, class EventType, void (ComponentType::* handler)(const EventType &message, const Theron::Address from)>
 		void RegisterHandler(){
@@ -89,7 +96,8 @@ namespace stage{
 
 		void finishPhase(uint64_t id);
 		void abortPhase(uint64_t id);
-		uint64_t createContext(uint64_t oldid, Destination origSender, int responseCount = 1);
+		uint64_t createActorContext(uint64_t oldid, Destination origSender, int responseCount = 1);
+		uint64_t createStandardContext(uint64_t oldid, int responseCount = 1);
 		virtual void initialize(GameObject* owner);
 	private:
 	};

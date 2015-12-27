@@ -21,11 +21,12 @@ namespace stage{
 
 		/** Viesti, jolla pyydetään pelimoottoria vaihtamaan aktiivista pelialuetta
 		*/
-		struct SetActiveScene : Event{
+		struct SetActiveScene : ComponentEvent{
 			/** Uuden pelialueen tunnusnumero
 			*/
 			unsigned int scene;
-			SetActiveScene(uint64_t id, unsigned int scene) : Event(id), scene(scene){}
+			SetActiveScene(uint64_t id, unsigned int scene, int senderComponent) : 
+				ComponentEvent(id, senderComponent, INVALID_COMPONENT_ID), scene(scene){}
 		};
 
 

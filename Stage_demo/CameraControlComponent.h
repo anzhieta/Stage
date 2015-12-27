@@ -25,8 +25,8 @@ namespace stage{
 		@param owner		Komponentin isäntäolion Theron-osoite
 		@param transform	Isäntäolion sijaintia ylläpitävän komponentin Theron-osoite
 		*/
-		CameraControlComponent(Theron::Framework& fw, Theron::Address owner, Theron::Address transform)
-			: Component(fw, owner), transform(transform){
+		CameraControlComponent(Theron::Framework& fw, Theron::Address owner, Destination notifyDest, uint64_t notifyID)
+			: Component(fw, owner){
 			
 			stage_common::Input& in = stage_common::Input::getSingleton();
 			//Rekisteröidään ne näppäimet, joiden tila halutaan lukea
@@ -39,6 +39,7 @@ namespace stage{
 			in.registerKey(GLFW_KEY_R);
 			in.registerKey(GLFW_KEY_F);
 			in.registerKey(GLFW_KEY_ESCAPE);
+			registerSelf(fw, owner, notifyDest, notifyID);
 		}
 
 		/** Hakee kameranhallintakomponentin komponenttitunnuksen
@@ -46,36 +47,39 @@ namespace stage{
 		*/
 		virtual int id(){ return CAMERACONTROLCOMPONENT_ID; }
 
+		virtual std::string name(){ return "Camera controls"; }
+
+		virtual void initialize(GameObject* owner){
+			Component::initialize(owner);
+			transform = (Transform*)owner->getComponent(TRANSFORM_ID);
+		}
+
 	private:
 		/** Isäntäolion sijaintia ylläpitävän komponentin Theron-osoite
 		*/
-		Theron::Address transform;
+		Transform* transform;
 
 		/** Päivittää komponentin tilan
 		@param msg		Päivityspyyntö
 		@param sender	Pyynnön lähettäjä
 		*/
-		void update(const Update& msg, Theron::Address sender){
+		virtual void update(float elapsedMS, uint64_t id){
 			stage_common::Input& in = stage_common::Input::getSingleton();
 			//Isäntäolion liikettä kuvaava vektori
 			glm::vec3 movement;
 			//muutetaan liikevektoria pohjassa olevien näppäinten perusteella
 			//Voidaan tehdä säieturvallisesti, koska Input-olion näppäinlistan
 			//arvoja muutetaan vain ylläpitovaiheessa
-			if (in.getKeyDown(GLFW_KEY_W)) movement.z += CAMERASPEED * msg.elapsedMS;
-			if (in.getKeyDown(GLFW_KEY_S)) movement.z -= CAMERASPEED  * msg.elapsedMS;
-			if (in.getKeyDown(GLFW_KEY_A)) movement.x += CAMERASPEED  * msg.elapsedMS;
-			if (in.getKeyDown(GLFW_KEY_D)) movement.x -= CAMERASPEED  * msg.elapsedMS;
-			if (in.getKeyDown(GLFW_KEY_F)) movement.y += CAMERASPEED  * msg.elapsedMS;
-			if (in.getKeyDown(GLFW_KEY_R)) movement.y -= CAMERASPEED  * msg.elapsedMS;
+			if (in.getKeyDown(GLFW_KEY_W)) movement.z += CAMERASPEED * elapsedMS;
+			if (in.getKeyDown(GLFW_KEY_S)) movement.z -= CAMERASPEED  * elapsedMS;
+			if (in.getKeyDown(GLFW_KEY_A)) movement.x += CAMERASPEED  * elapsedMS;
+			if (in.getKeyDown(GLFW_KEY_D)) movement.x -= CAMERASPEED  * elapsedMS;
+			if (in.getKeyDown(GLFW_KEY_F)) movement.y += CAMERASPEED  * elapsedMS;
+			if (in.getKeyDown(GLFW_KEY_R)) movement.y -= CAMERASPEED  * elapsedMS;
 			//Lopetetaan suoritus, jos Esc pohjassa
 			if (in.getKeyDown(GLFW_KEY_ESCAPE)) Send(SceneManager::Abort(), SceneManager::getGlobalManager());
-			//Luodaan konteksti isäntäolion siirtämistä varten
-			uint64_t id = tracker.getNextID();
-			tracker.addContext(msg.id, id, sender);
-			//Pyydetään isäntäoliota siirtymään
-			Send(Transform::Translate(id, movement), transform);
-			//Vastausviesti lähetetään automaattisesti, kun Transform vastaa
+			transform->translate(movement);
+			finishPhase(id);
 		}
 	};
 }

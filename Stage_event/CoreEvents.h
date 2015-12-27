@@ -61,6 +61,9 @@ namespace stage {
 		int component;
 		Destination(const Theron::Address& address, int component): address(address), component(component){}
 	};
+	inline bool operator==(const Destination& lhs, const Destination& rhs){ 
+		return (lhs.address == rhs.address && lhs.component == rhs.component);
+	}
 
 	/** Viesti, jolla pyydetään pelioliota tai komponenttia päivittämään sisäinen tilansa uutta
 	ruudunpäivitystä vastaavaksi
