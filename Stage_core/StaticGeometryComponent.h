@@ -6,6 +6,7 @@
 #define STATICGEOMETRYCOMPONENT_ID 5
 
 #include "PhysicsComponent.h"
+#include <Collider.h>
 
 namespace stage{
 	/** Luokka, joka esittää staattista pelimaailman tasogeometriaa, kuten maastoa tai seiniä.

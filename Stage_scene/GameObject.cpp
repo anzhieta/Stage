@@ -25,7 +25,13 @@ GameObject::~GameObject(){
 }
 
 void GameObject::addComponent(const AddComponent &msg, Theron::Address from){
+	if (idmap.find(msg.component->id()) != idmap.end()){
+		LOGERR("Could not add component " + msg.component->name() + "; game object already contains component with id " +
+			std::to_string(msg.component->id()));
+		Send(Error(msg.id, INVALID_COMPONENT_ID, msg.notifyDestination.component), msg.notifyDestination.address);
+	}
 	components.push_back(msg.component);
+	idmap.emplace(msg.component->id(), msg.component);
 	msg.component->initialize(this);
 	Send(AllDone(msg.id, INVALID_COMPONENT_ID, msg.notifyDestination.component), msg.notifyDestination.address);
 }

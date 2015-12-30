@@ -51,12 +51,8 @@ namespace stage{
 
 		template <class ComponentType, class EventType, void (ComponentType::* handler)(const EventType &message, const Theron::Address from)>
 		void handleComponentMessage(const EventType& msg, Theron::Address from){
-			for (std::list<Component*>::iterator i = components.begin(); i != components.end(); i++){
-				if ((*i)->id() == msg.receiverComponent){
-					ComponentType* c = (ComponentType*)(*i);
-					(c->*handler)(msg, from);
-				}
-			}
+			ComponentType* c = (ComponentType*)(idmap.at(msg.receiverComponent));
+			(c->*handler)(msg, from);
 		}
 		void allDone(uint64_t id);
 		void error(uint64_t id, const std::string& compname);
@@ -65,6 +61,7 @@ namespace stage{
 		/** Peliolion kaikki komponentit sisältävä lista
 		*/
 		std::list<Component*> components;
+		std::unordered_map<int, Component*> idmap;
 
 		/** Peliolion viestikontekstilista
 		*/

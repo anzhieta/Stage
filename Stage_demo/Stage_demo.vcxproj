@@ -5,9 +5,17 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -22,7 +30,20 @@
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
@@ -35,7 +56,13 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -43,7 +70,15 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_utilities;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_physics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_scene;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_core;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_graphics;$(IncludePath)</IncludePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_utilities;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_physics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_scene;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_core;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_graphics;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_physics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_utilities;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_graphics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_scene;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_core;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_physics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_utilities;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage_common\Stage_common_graphics;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_scene;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_event;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Stage_core;$(IncludePath)</IncludePath>
   </PropertyGroup>
@@ -62,7 +97,41 @@
       <AdditionalDependencies>D:\theron\2013\Theron-6.00.02\Bin\Theron.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_core.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_event.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_scene.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_common_graphics.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_common_utilities.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_common_physics.lib;D:\glew\glew-1.12.0\lib\Release\Win32\glew32s.lib;D:\glfw\glfw-3.1.bin.WIN32\lib-vc2013\glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>D:\boost_1_58\boost_1_58_0;D:\theron\Theron-6.00.02\Include;D:\glm\glm;D:\glfw\glfw-3.1.bin.WIN32\include;D:\glew\glew-1.12.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>D:\theron\2013\Theron-6.00.02\Bin\Theron.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_core.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_event.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_scene.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_common_graphics.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_common_utilities.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Debug\Stage_common_physics.lib;D:\glew\glew-1.12.0\lib\Release\Win32\glew32s.lib;D:\glfw\glfw-3.1.bin.WIN32\lib-vc2013\glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>D:\glm\glm;D:\glfw\glfw-3.1.bin.WIN32\include;D:\glew\glew-1.12.0\include;D:\boost_1_58\boost_1_58_0;D:\theron\Theron-6.00.02\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>D:\theron\Theron-6.00.02\Bin\Release\Theron.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Release\Stage_core.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Release\Stage_event.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Release\Stage_scene.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Release\Stage_common_graphics.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Release\Stage_common_utilities.lib;D:\Libraries\New folder\Visual Studio 2013\Projects\Stage\Release\Stage_common_physics.lib;D:\glew\glew-1.12.0\lib\Release\Win32\glew32s.lib;D:\glfw\glfw-3.1.bin.WIN32\lib-vc2013\glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -97,7 +166,9 @@
     <ClCompile Include="Stage_demo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -206,9 +206,10 @@ namespace stage{
 			const std::list<Destination>& recipients = collisionEventChannel.getRecipients();
 			
 			bool sent = false;
+			CollisionCheck newmsg(newid, *tempCollider, owner->GetAddress(), elapsedMS, PHYSICSCOMPONENT_ID, INVALID_COMPONENT_ID);
 			for (std::list<Destination>::const_iterator i = recipients.cbegin(); i != recipients.cend(); i++){
 				if (!((*i).address == owner->GetAddress() && (*i).component == PHYSICSCOMPONENT_ID)){
-					CollisionCheck newmsg(newid, *tempCollider, owner->GetAddress(), elapsedMS, PHYSICSCOMPONENT_ID, (*i).component);
+					newmsg.receiverComponent = (*i).component;
 					tracker.trackedSend<CollisionCheck>(id, newmsg, (*i).address, Destination(owner->GetAddress(), INVALID_COMPONENT_ID));
 					sent = true;
 				}

@@ -45,8 +45,8 @@ namespace stage {
 			RegisterHandler(this, &EventChannel<MessageType>::forward);
 			RegisterHandler(this, &EventChannel<MessageType>::registerRecipient);
 			RegisterHandler(this, &EventChannel<MessageType>::deregisterRecipient);
-			RegisterHandler(this, &EventChannel<MessageType>::allDone);
-			RegisterHandler(this, &EventChannel<MessageType>::error);
+			//RegisterHandler(this, &EventChannel<MessageType>::allDone);
+			//RegisterHandler(this, &EventChannel<MessageType>::error);
 			RegisterHandler(this, &EventChannel<MessageType>::channelMaintenance);
 		}
 
