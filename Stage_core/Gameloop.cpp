@@ -11,7 +11,6 @@
 #include <Timer.h>
 #include <Input.h>
 
-
 using namespace stage;
 
 Gameloop::Gameloop(std::string& windowName, int xres, int yres, uint32_t threadcount): 
@@ -24,7 +23,6 @@ Gameloop::Gameloop(std::string& windowName, int xres, int yres, uint32_t threadc
 	logger = new LogActor(fw);
 	SceneManager::globalManager = receiver.GetAddress();
 }
-
 Gameloop::~Gameloop(){
 	if (globalManager == receiver.GetAddress()) globalManager = Theron::Address::Null();
 	//Poistetaan pelialueet
@@ -36,18 +34,15 @@ Gameloop::~Gameloop(){
 	//Poistetaan lokipalvelu
 	delete logger;
 }
-
 float Gameloop::getTimescale() {
 		return timescale;
 }
 void Gameloop::setTimescale(float ts) {
 	timescale = ts;
 }
-
 void Gameloop::setActiveCamera(stage_common::Camera* cam){
 	activeCam = cam;
 }
-
 void Gameloop::start() {
 	if (Theron::Address::Null() == activeScene){
 		fw.Send(LogActor::LogError("Failed to start game engine: active scene not set"), receiver.GetAddress(), logger->GetAddress());
@@ -106,12 +101,7 @@ void Gameloop::loop() {
 		}
 		doneCatcher.Pop(adMSG, sender);
 		upTimer.stop();
-
-		//Poistovaihe
-		//TODO: peliolioiden poistaminen
-
 		
-
 		//Piirtovaihe
 		rendTimer.start();
 		//Haetaan piirrettävät mallit
@@ -151,7 +141,6 @@ void Gameloop::loop() {
 	fw.Send(LogActor::LogMessage("Average update time: " + std::to_string(upTimer.averageTime())), recAddress, logger->GetAddress());
 	fw.Send(LogActor::LogMessage("Average render time: " + std::to_string(rendTimer.averageTime())), recAddress, logger->GetAddress());
 	fw.Send(LogActor::LogMessage("Average maintenance time: " + std::to_string(maintTimer.averageTime())), recAddress, logger->GetAddress());
-
 	shutdown();
 }
 void Gameloop::shutdown(){

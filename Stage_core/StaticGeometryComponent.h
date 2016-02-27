@@ -34,7 +34,6 @@ namespace stage{
 			Send(Transform::GetPosition(id), transform);
 			//Suoritus jatkuu metodissa finishSphereSetup
 		}
-
 		/** Luo uuden staattisen törmäyskomponentin AABB-törmäyshahmolla (Axis-aligned bounding box)
 		@param fw						Komponenttia hallinnoiva Theron::Framework
 		@param owner					Komponentin omistavan peliolion osoite
@@ -52,35 +51,25 @@ namespace stage{
 			tracker.setVariable<glm::vec3>(id, 0, size);
 			Send(Transform::GetPosition(id), transform);
 			//Suoritus jatkuu metodissa finishAABBSetup
-		}
-				
-		/** Hakee staatisen törmäyskomponentin komponenttitunnuksen
+		}				
+		/** Hakee staatisen törmäyshahmokomponentin komponenttitunnuksen
 		@returns	Komponentin tunnusluku
 		*/
 		int id(){
 			return STATICGEOMETRYCOMPONENT_ID;
 		}
-
-		/** Tuhoaa staattisen törmäyskomponentin
-		*/
+		/** Tuhoaa staattisen törmäyshahmokomponentin*/
 		~StaticGeometryComponent(){
 			delete collider;
 		}
 	private:
-		/** Komponentin törmäyshahmo
-		*/
+		/** Komponentin törmäyshahmo*/
 		stage_common::Collider* collider;
-
-		/** Komponentin isäntäolion sijaintia ylläpitävän olion Theron-osoite
-		*/
+		/** Komponentin isäntäolion sijaintia ylläpitävän olion Theron-osoite*/
 		Theron::Address transform;
-
-		/** Törmäysviestikanavan osoite
-		*/
+		/** Törmäysviestikanavan osoite*/
 		Theron::Address collisionEventChannel;
-
-		/** Onko tämän komponentin alustus suoritettu loppuun
-		*/
+		/** Onko tämän komponentin alustus suoritettu loppuun*/
 		bool init = false;
 
 		//--Kontekstiyksikkö alkaa--
@@ -102,7 +91,6 @@ namespace stage{
 			Send(Transform::GetPosition(id), transform);
 			//Suoritus jatkuu metodissa finishUpdate
 		}
-
 		/** Suorittaa tilanpäivityksen loppuun
 		@param msg	Peliolion sijainnin sisältävä viesti
 		@param from	Viestin lähettäjä
@@ -136,7 +124,6 @@ namespace stage{
 				Send(PhysicsComponent::StaticCollision(id, *collider), msg.originator);
 			}
 		}
-
 		/** Suoritetaan komponentin alustus loppuun ja asetetaan törmäyshahmoksi pallo
 		@param msg		Peliolion sijainnin sisältävä viesti
 		@param sender	Viestin lähettäjä
@@ -161,7 +148,6 @@ namespace stage{
 			init = true;
 			tracker.decrement(msg.id);
 		}
-
 		/** Molemmille konstruktoreille yhteiset alustukset suorittava metodi
 		@returns	Konteksti-ID, jota käytetään alustusviestien tunnistamiseen
 		*/
@@ -178,5 +164,4 @@ namespace stage{
 		}
 	};
 }
-
 #endif

@@ -17,7 +17,6 @@ ModelComponent::ModelComponent(Theron::Framework& fw, stage_common::Model* mod, 
 	Send(GameObject::GetComponent(msgid, TRANSFORM_ID), owner);
 	RegisterHandler(this, &ModelComponent::completeRender);
 }
-
 void ModelComponent::initialize(const GameObject::ComponentFound& msg, Theron::Address sender){
 	if (!tracker.contains(msg.id)) return;
 	tracker.decrement(msg.id);
@@ -35,7 +34,6 @@ void ModelComponent::render(const Render& msg, Theron::Address sender){
 	//Haetaan isäntäolion nykyinen sijainti, jotta malli voidaan piirtää oikeaan paikkaan
 	Send(Transform::GetMatrix(id), transform);
 }
-
 void ModelComponent::completeRender(const Transform::Matrix& msg, Theron::Address sender){
 	if (!tracker.contains(msg.id)) return;
 	Send(GraphicsControlActor::Queue(msg.id, mod, msg.matrix), GraphicsControlActor::getGlobalController());

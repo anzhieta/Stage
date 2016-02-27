@@ -6,24 +6,19 @@
 #include <glm\glm.hpp>
 
 //Sisältää apufunktioita, joiden avulla voidaan muodostaa litteän tason piirtämiseen vaadittava 3D-malli
-
 namespace stage{
-	/** Litteän tason verteksit
-	*/
+	/** Litteän tason verteksit*/
 	static std::vector<glm::vec3> plane_vertices = {
 		glm::vec3(-1.000000, 0.000000, 1.000000),
 		glm::vec3(1.000000, 0.000000, 1.000000),
 		glm::vec3(-1.000000, 0.000000, -1.000000),
 		glm::vec3(1.000000, 0.000000, -1.000000)
 	};
-
-	/** Litteän tason tahkot
-	*/
+	/** Litteän tason tahkot*/
 	static std::vector<int> plane_faces = {
 		2, 4, 3,
 		1, 2, 3
 	};
-
 	/** Yhdistää tason verteksit ja tahkot yhtenäiseksi verteksilistaksi
 	@returns	Lista litteän tason vektoreista
 	*/
@@ -34,7 +29,6 @@ namespace stage{
 		}
 		return ret;
 	}
-
 	/** Arpoo litteän tason vertekseille värit
 	@returns	Lista värivektoreita
 	*/
@@ -48,5 +42,4 @@ namespace stage{
 		return ret;
 	}
 }
-
 #endif

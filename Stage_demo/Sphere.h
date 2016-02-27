@@ -6,10 +6,8 @@
 #include <glm\glm.hpp>
 
 //Sisältää apufunktioita, joiden avulla voidaan muodostaa pallon piirtämiseen vaadittava 3D-malli
-
 namespace stage{
-	/** Pallon verteksit
-	*/
+	/** Pallon verteksit*/
 	static std::vector<glm::vec3> sphere_vertices = {
 		glm::vec3(0.000000, -1.000000, 0.000000),
 		glm::vec3(0.723607, -0.447220, 0.525725),
@@ -54,9 +52,7 @@ namespace stage{
 		glm::vec3(-0.425323, 0.850654, -0.309011),
 		glm::vec3(0.162456, 0.850654, -0.499995)
 	};
-
-	/** Pallon tahkot
-	*/
+	/** Pallon tahkot*/
 	static std::vector<int> sphere_faces = {
 		1, 14, 13,
 		2, 14, 16,
@@ -139,7 +135,6 @@ namespace stage{
 		13, 14, 15,
 		14, 2, 15
 	};
-
 	/** Yhdistää pallon verteksit ja tahkot yhtenäiseksi verteksilistaksi
 	@returns	Lista pallon vektoreista
 	*/
@@ -150,7 +145,6 @@ namespace stage{
 		}
 		return ret;
 	}
-
 	/** Arpoo pallon vertekseille värit
 	@returns	Lista värivektoreita
 	*/
@@ -164,5 +158,4 @@ namespace stage{
 		return ret;
 	}
 }
-
 #endif

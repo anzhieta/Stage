@@ -1,5 +1,4 @@
-﻿
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <Theron\Theron.h>
 #include <string>
 #include <iostream>

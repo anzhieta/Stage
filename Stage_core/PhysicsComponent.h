@@ -14,8 +14,6 @@
 #include <LogActor.h>
 #include <unordered_set>
 
-
-
 namespace stage{
 	/** Komponentti, joka tekee isäntäoliostaan fysiikkaolion, joka liikkuu pelimaailmassa vakionopeudella
 	ja voi törmätä muihin fysiikkaolioihin sekä staattiseen tasogeometriaan
@@ -28,56 +26,45 @@ namespace stage{
 	*/
 	class PhysicsComponent : public Component{
 	public:
+		//---Viestit---
+
 		/** Viesti, joka ilmoittaa lähettäneen fysiikkaolion sijainnin muuttuneen ja pyytää muita fysiikkaolioita
-		tarkistamaan mahdolliset törmäykset
-		*/
+		tarkistamaan mahdolliset törmäykset	*/
 		struct CollisionCheck : public Event{
-			/** Lähettäjän törmäyshahmo
-			*/
+			/** Lähettäjän törmäyshahmo*/
 			const stage_common::Collider& coll;
-			/** Alkuperäisen lähettäjän osoite
-			*/
+			/** Alkuperäisen lähettäjän osoite*/
 			const Theron::Address originator;
-			/** Edellisestä ruudunpäivityksestä kulunut aika millisekunteina
-			*/
+			/** Edellisestä ruudunpäivityksestä kulunut aika millisekunteina*/
 			float elapsedMS;
 			CollisionCheck(uint64_t id, stage_common::Collider& coll, Theron::Address originator, float elapsedMS)
 				: Event(id), coll(coll), originator(originator), elapsedMS(elapsedMS){}
 		};
-
-		/** Viesti, joka ilmoittaa, että vastaanottaja on törmännyt lähettäjään
-		*/
+		/** Viesti, joka ilmoittaa, että vastaanottaja on törmännyt lähettäjään*/
 		struct CollisionDetected : public Event{
-			/** Lähettäjän törmäyshahmo
-			*/
+			/** Lähettäjän törmäyshahmo	*/
 			const stage_common::Collider& coll;
-			/** Lähettäjän nopeus
-			*/
+			/** Lähettäjän nopeus*/
 			glm::vec3 otherVelocity;
-			/** Lähettäjän massa
-			*/
+			/** Lähettäjän massa*/
 			float otherMass;
 			CollisionDetected(uint64_t id, stage_common::Collider& coll, glm::vec3 otherVelocity, float otherMass)
 				: Event(id), coll(coll), otherVelocity(otherVelocity), otherMass(otherMass){}
 		};
-
-		/** Viesti, joka ilmoittaa, että vastaanottaja on törmännyt liikkumattomaan peliolioon
-		*/
+		/** Viesti, joka ilmoittaa, että vastaanottaja on törmännyt liikkumattomaan peliolioon*/
 		struct StaticCollision : public Event{
-			/** Lähettäjän törmäyshahmo
-			*/
+			/** Lähettäjän törmäyshahmo*/
 			const stage_common::Collider& coll;
 			StaticCollision(uint64_t id, stage_common::Collider& coll) : Event(id), coll(coll){}
 		};
-
-		/** Viesti, joka ilmoittaa törmäyksen käsittelyn onnistuneen
-		*/
+		/** Viesti, joka ilmoittaa törmäyksen käsittelyn onnistuneen*/
 		struct FinishCollision : public Event{
-			/** Vastaanottajan nopeuteen tehtävä muutos
-			*/
+			/** Vastaanottajan nopeuteen tehtävä muutos*/
 			glm::vec3 velocityAdjustment;
 			FinishCollision(uint64_t id, glm::vec3 velAdj) : Event(id), velocityAdjustment(velAdj){}
 		};
+
+		//---Metodit---
 
 		/** Luo uuden fysiikkakomponentin pallotörmäyshahmolla
 		@param fw						Komponenttia hallinnoiva Theron::Framework
@@ -101,7 +88,6 @@ namespace stage{
 			Send(Transform::GetPosition(id), transform);
 			//Suoritus jatkuu metodissa finishSphereSetup
 		}
-
 		/** Luo uuden fysiikkakomponentin AABB-törmäyshahmolla
 		@param fw						Komponenttia hallinnoiva Theron::Framework
 		@param owner					Komponentin omistavan peliolion osoite
@@ -124,61 +110,42 @@ namespace stage{
 			Send(Transform::GetPosition(id), transform);
 			//Suoritus jatkuu metodissa finishAABBSetup
 		}
-
-		/** Tuhoaa fysiikkakomponentin
-		*/
+		/** Tuhoaa fysiikkakomponentin*/
 		~PhysicsComponent(){
 			delete collider;
 			delete tempCollider;
 		}
-
 		/** Hakee fysiikkakomponentin komponenttitunnuksen
 		@returns	Komponentin tunnus
 		*/
 		virtual int id(){ return PHYSICSCOMPONENT_ID; }
 	private:
-		/** Viite fysiikkamoottorin viestien käyttämään viestikanavaan
-		*/
+		//---Kentät---
+		/** Viite fysiikkamoottorin viestien käyttämään viestikanavaan*/
 		EventChannel<CollisionCheck>& collisionEventChannel;
-
-		/** Fysiikkaolion törmäyshahmo
-		*/
+		/** Fysiikkaolion törmäyshahmo*/
 		stage_common::Collider* collider;
-
 		/** Kopio fysiikkaolion törmäyshahmosta.
-		Käytetään törmäystentunnistuksessa varmistamaan, että törmäyshahmon muokkaaminen ei aiheuta rinnakkaisuusongelmia
-		*/
+		Käytetään törmäystentunnistuksessa varmistamaan, että törmäyshahmon muokkaaminen ei aiheuta rinnakkaisuusongelmia*/
 		stage_common::Collider* tempCollider;
-
-		/** Isäntäolion sijaintia ylläpitävän olion osoite
-		*/
+		/** Isäntäolion sijaintia ylläpitävän olion osoite*/
 		Theron::Address transform;
-
-		/** Fysiikkaolion liikesuunta ja nopeus
-		*/
+		/** Fysiikkaolion liikesuunta ja nopeus*/
 		glm::vec3 velocity;
-
-		/** Fysiikkaolion sijainti ruudunpäivityksen alussa
-		*/
+		/** Fysiikkaolion sijainti ruudunpäivityksen alussa*/
 		glm::vec3 oldPos;
-
-		/** Fysiikkaolion massa
-		*/
+		/** Fysiikkaolion massa*/
 		float mass;
-
-		/** Onko fysiikkaolion tila päivitetty nykyisen ruudunpäivityksen aikana
-		*/
+		/** Onko fysiikkaolion tila päivitetty nykyisen ruudunpäivityksen aikana*/
 		bool updatedThisFrame = false;
-
-		/** Onko komponentin alustus suoritettu loppuun
-		*/
+		/** Onko komponentin alustus suoritettu loppuun*/
 		bool init = false;
-
 		/** Niiden fysiikkaolioiden joukko, joihin on törmätty tämän ruudunpäivityksen aikana.
 		Käytetään estämään saman törmäyksen käsitteleminen kahdesti, jos kumpikin fysiikkaolio
-		käsittelee sitä samanaikaisesti rinnakkain.
-		*/
+		käsittelee sitä samanaikaisesti rinnakkain.*/
 		std::unordered_set<int> collidedThisFrame;
+
+		//---Metodit---
 
 		/** Molemmille konstruktoreille yhteiset alustukset suorittava metodi
 		@returns	Konteksti-ID, jota käytetään alustusviestien tunnistamiseen
@@ -198,7 +165,6 @@ namespace stage{
 			Send(EventChannel<CollisionCheck>::RegisterRecipient(this->GetAddress()), collisionEventChannel.GetAddress());
 			return id;
 		}
-
 		/** Suoritetaan komponentin alustus loppuun ja asetetaan törmäyshahmoksi pallo
 		@param msg		Fysiikkaolion sijainnin sisältävä viesti
 		@param sender	Viestin lähettäjä
@@ -212,7 +178,6 @@ namespace stage{
 			init = true;
 			tracker.decrement(msg.id);
 		}
-
 		/** Suoritetaan komponentin alustus loppuun ja asetetaan törmäyshahmoksi AABB (Axis-Aligned Bounding Box)
 		@param msg		Fysiikkaolion sijainnin sisältävä viesti
 		@param sender	Viestin lähettäjä
@@ -269,7 +234,6 @@ namespace stage{
 				//Suoritus jatkuu metodissa finishUpdate
 			}
 		}
-
 		/** Suorittaa loppuun tilanpäivityksen päivittämällä muuttuneen sijainnin sijaintikomponenttiin
 		@param msg	Isäntäolion nykyisen sijainnin ilmoittava viesti
 		@param from	Viestin lähettäjä
@@ -315,7 +279,6 @@ namespace stage{
 				//Suoritus jatkuu metodissa FinishCollision
 			}
 		}
-
 		/** Suorittaa loppuun törmäystapahtuman käsittelyn
 		@param msg	Viesti, joka ilmoittaa törmäystapahtuman käsittelyn päättyneen
 					ja sisältäää törmäyksen aiheuttaman muutoksen tämän kappaleen nopeuteen
@@ -353,7 +316,6 @@ namespace stage{
 				Send(FinishCollision(msg.id, otherNewV - msg.otherVelocity), from);
 			}
 		}
-
 		/** Käsittelee havaitun törmäyksen fysiikkaolion ja staattisen törmäyshahmon välillä
 		@param msg	Törmäyksestä kertova viesti
 		@param from	Staattinen törmäyshahmokomponentti, johon törmättiin
@@ -364,8 +326,7 @@ namespace stage{
 			//Siirretään tämän olion törmäyshahmoa, kunnes oliot eivät enää törmää
 			stage_common::Collisions::backOff(*collider, -1.0f * velocity, msg.coll);
 			Send(AllDone(msg.id), from);
-		}
-		
+		}		
 		/** Siirtää törmäyshahmoa fysiikkaolion nykyisen nopeuden mukaisesti
 		@param elapsedMS	Edellisestä ruudunpäivityksestä kulunut aika millisekunteina
 		*/
@@ -377,7 +338,6 @@ namespace stage{
 			//muista säikeistä
 			tempCollider = collider->copy();
 		}
-
 		/** Suorittaa pelisilmukan piirtovaiheen laskennan
 		@param rend	Piirtopyyntöviesti
 		@param from	Viestin lähettäjä
@@ -389,5 +349,4 @@ namespace stage{
 		}
 	};
 }
-
 #endif

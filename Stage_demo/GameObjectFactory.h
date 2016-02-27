@@ -13,8 +13,7 @@
 #include <SimpleShader.h>
 
 namespace stage{
-	/** Tehdasluokka, joka valmistaa pelimoottorin demo-ohjelman käyttämiä peliolioita
-	*/
+	/** Tehdasluokka, joka valmistaa pelimoottorin demo-ohjelman käyttämiä peliolioita*/
 	class GameObjectFactory{
 	public:
 		/** Rakentaa satunnaiseen paikkaan pallon, joka lähtee liikkumaan satunnaiseen suuntaan
@@ -26,7 +25,7 @@ namespace stage{
 		*/
 		Theron::Address constructRandomSphere(Theron::Framework& fw, Theron::Address scene, glm::vec3 maxCoordinates, 
 			EventChannel<PhysicsComponent::CollisionCheck>& collisionEventChannel, int waitLimit){
-			
+			//Placeholder-muuttujat vastaanotettaville viesteille
 			Scene::NewObject obj(0, Theron::Address::Null());
 			Theron::Address temp;
 			//Pyydetään pelialuetta luomaan uusi peliolio
@@ -50,7 +49,6 @@ namespace stage{
 			if (waitLimit > 0) Waiter* w = new Waiter(fw, obj.object, waitLimit);
 			return obj.object;
 		}
-
 		/** Rakentaa haluttuun pelimaailman sijaintiin seinän
 		@param fw						Pelimaailmaa hallinnoiva Theron::Framework
 		@param scene					Sen pelialueen osoite, johon seinä rakennetaan
@@ -61,7 +59,7 @@ namespace stage{
 		*/
 		Theron::Address constructWall(Theron::Framework& fw, Theron::Address scene, glm::mat4& transform, glm::vec3 size,
 			Theron::Address collisionEventChannel){
-			
+			//Placeholder-muuttujat vastaanotettaville viesteille
 			Scene::NewObject obj(0, Theron::Address::Null());
 			Theron::Address temp;
 			//Pyydetään pelialuetta luomaan uusi peliolio
@@ -76,8 +74,7 @@ namespace stage{
 			//Liitetään seinään törmäyshahmo
 			StaticGeometryComponent* sgc = new StaticGeometryComponent(fw, obj.object, size, tf->GetAddress(), collisionEventChannel);
 			return obj.object;
-		}
-		
+		}		
 		/** Hakee viitteen globaaliin GameObjectFactory-instanssiin
 		@returns	Viite GameObjectFactory-singletoniin
 		*/
@@ -86,26 +83,16 @@ namespace stage{
 			return gof;
 		}
 	private:
-		/** Demon 3D-mallien käyttämä sävytinohjelma
-		*/
+		/** Demon 3D-mallien käyttämä sävytinohjelma*/
 		stage_common::SimpleShader ss;
-
-		/** Pallon 3D-malli
-		*/
+		/** Pallon 3D-malli*/
 		stage_common::Model mod_sphere;
-
-		/** Seinän 3D-malli
-		*/
+		/** Seinän 3D-malli*/
 		stage_common::Model mod_plane;
-
-		/** Olio, jota tehdasolio käyttää vastaanottamaan viestejä aktoreilta
-		*/
+		/** Olio, jota tehdasolio käyttää vastaanottamaan viestejä aktoreilta*/
 		Theron::Receiver rec;
-
-		/** Olio, jota tehdasolio käyttää käsittelemään aktoreilta vastaanotetut viestit
-		*/
-		Theron::Catcher<Scene::NewObject> catcher;
-		
+		/** Olio, jota tehdasolio käyttää käsittelemään aktoreilta vastaanotetut viestit*/
+		Theron::Catcher<Scene::NewObject> catcher;		
 		/** Apufunktio, joka arpoo satunnaisen liukuluvun kahden luvun väliltä
 		@param start	Arvottavan luvun alaraja
 		@param end		Arvottavan luvun yläraja
@@ -115,14 +102,11 @@ namespace stage{
 			float random = ((float)rand()) / (float)RAND_MAX;
 			return start + (end - start) * random;
 		}
-
-		/** Luo pelioliotehtaan
-		*/
+		/** Luo pelioliotehtaan*/
 		GameObjectFactory() : mod_sphere(generate_sphere_vertices(), generate_sphere_colors(), &ss),
 			mod_plane(generate_plane_vertices(), generate_plane_colors(), &ss){
 			rec.RegisterHandler(&catcher, &Theron::Catcher<Scene::NewObject>::Push);
 		}
 	};
 }
-
 #endif

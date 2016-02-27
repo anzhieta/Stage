@@ -9,7 +9,6 @@
 #include <glm\glm.hpp>
 #include <iostream>
 
-
 namespace stage {
 	/** Grafiikkamoottoria hallinnoiva aktori-singleton. 
 	Pitää huolen, että lista piirrettävistä 3D-malleista muodostetaan säieturvallisesti.
@@ -19,21 +18,17 @@ namespace stage {
 	class GraphicsControlActor : public Theron::Actor{
 		friend class Gameloop;
 	public:
-		/** Viesti, joka lisää uuden 3D-mallin seuraavassa ruudunpäivityksessä piirrettävien mallien listalle
-		*/
+		/** Viesti, joka lisää uuden 3D-mallin seuraavassa ruudunpäivityksessä piirrettävien mallien listalle*/
 		struct Queue : public Event{
-			/** Piirrettävä 3D-malli
-			*/
+			/** Piirrettävä 3D-malli*/
 			stage_common::Model* model;
-			/** Sijainti pelimaailmassa, johon malli piirretään
-			*/
+			/** Pelimaailman piste, johon malli piirretään	*/
 			const glm::mat4& position;
 			Queue(Theron::Address originator, uint32_t msgID, stage_common::Model* mod, glm::mat4& pos):
 				Event(originator, msgID), model(mod), position(pos){}
 			Queue(uint64_t msgID, stage_common::Model* mod, const glm::mat4& pos) :
 				Event(msgID), model(mod), position(pos){}
 		};
-
 		/** Luo uuden grafiikkamoottoria hallinnoivan aktorin ja avaa peli-ikkunan
 		@param fw			Tätä aktoria hallinnoiva Theron::Framework
 		@param windowname	Luotavan peli-ikkunan nimi
@@ -41,8 +36,7 @@ namespace stage {
 		@param y			Ikkunan pystyresoluutio
 		*/
 		GraphicsControlActor(Theron::Framework& fw, std::string windowname, int x, int y);
-		/** Tuhoaa grafiikkamoottoria hallinnoivan aktorin
-		*/
+		/** Tuhoaa grafiikkamoottoria hallinnoivan aktorin*/
 		~GraphicsControlActor();
 		/** Antaa globaalin GraphicsControlActor-singletonin osoitteen
 		@returns	Globaalin grafiikkamoottoria hallinnoivan aktorin osoite
@@ -66,12 +60,10 @@ namespace stage {
 		@returns	True, jos ohjelman suoritus tulisi pysäyttää
 		*/
 		bool shouldClose(){ return gc.shouldStop(); }
-
 		/** Lisää uuden 3D-mallin seuraavassa ruudunpäivityksessä piirrettävien mallien listalle
 		@param msg	Viesti, joka sisältää osoittimen piirrettävään malliin sekä sijainnin, johon malli piirretään
 		*/
 		void queue(const Queue& msg, Theron::Address sender);
 	};
 }
-
 #endif

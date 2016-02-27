@@ -26,8 +26,7 @@ namespace stage{
 		@param transform	Isäntäolion sijaintia ylläpitävän komponentin Theron-osoite
 		*/
 		CameraControlComponent(Theron::Framework& fw, Theron::Address owner, Theron::Address transform)
-			: Component(fw, owner), transform(transform){
-			
+			: Component(fw, owner), transform(transform){			
 			stage_common::Input& in = stage_common::Input::getSingleton();
 			//Rekisteröidään ne näppäimet, joiden tila halutaan lukea
 			//Voidaan tehdä säieturvallisesti, koska Input-olion näppäinlistaan
@@ -40,7 +39,6 @@ namespace stage{
 			in.registerKey(GLFW_KEY_F);
 			in.registerKey(GLFW_KEY_ESCAPE);
 		}
-
 		/** Hakee kameranhallintakomponentin komponenttitunnuksen
 		@returns	Komponentin tyyppitunnus
 		*/
@@ -50,7 +48,6 @@ namespace stage{
 		/** Isäntäolion sijaintia ylläpitävän komponentin Theron-osoite
 		*/
 		Theron::Address transform;
-
 		/** Päivittää komponentin tilan
 		@param msg		Päivityspyyntö
 		@param sender	Pyynnön lähettäjä
@@ -79,5 +76,4 @@ namespace stage{
 		}
 	};
 }
-
 #endif

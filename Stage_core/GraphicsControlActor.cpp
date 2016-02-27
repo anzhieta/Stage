@@ -17,13 +17,10 @@ Theron::Actor(fw), gc(windowname, x, y) {
 		abort();
 	}
 	RegisterHandler(this, &GraphicsControlActor::queue);
-
 }
-
 GraphicsControlActor::~GraphicsControlActor(){
 	if (globalController == this->GetAddress()) globalController = Theron::Address::Null();
 }
-
 void GraphicsControlActor::queue(const Queue& msg, Theron::Address sender){
 	gc.queue(msg.model, msg.position);
 	Send(AllDone(msg.id), sender);
