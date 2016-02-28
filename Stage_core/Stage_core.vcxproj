@@ -95,6 +95,8 @@
     <ClCompile Include="Gameloop.cpp" />
     <ClCompile Include="GraphicsControlActor.cpp" />
     <ClCompile Include="ModelComponent.cpp" />
+    <ClCompile Include="PhysicsComponent.cpp" />
+    <ClCompile Include="StaticGeometryComponent.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
