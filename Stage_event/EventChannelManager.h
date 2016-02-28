@@ -6,16 +6,18 @@
 #include "CoreEvents.h"
 
 namespace stage{
-	/** Luokka, joka pitää kirjaa tapahtumakanavista ja huoltaa niitä
-	*/
+	/** Luokka, joka pitää kirjaa tapahtumakanavista ja huoltaa niitä*/
 	class EventChannelManager : public Theron::Actor{
 	public:
+		//---Viestit---
+
 		/** Viesti, jolla pyydetään tapahtumakanavia suorittamaan huollon eli lisäämään ja
-		poistamaan lisäystä tai poistoa odottavat aktorit vastaanottajalistastaan
-		*/
+		poistamaan lisäystä tai poistoa odottavat aktorit vastaanottajalistastaan*/
 		struct ChannelMaintenance: public Event{
 			ChannelMaintenance(uint64_t id): Event(id){}
 		};
+
+		//---Metodit---
 
 		/** Luo uuden EventChannelManager-aktorin
 		@param fw	Aktoria hallinnoiva Theron::Framework
@@ -24,7 +26,6 @@ namespace stage{
 			RegisterHandler(this, &EventChannelManager::channelMaintenance);
 			RegisterHandler(this, &EventChannelManager::allDone);
 		}
-
 		/** Lisää kanavan huollettavien kanavien listaan
 		@param channel	Lisättävä kanava
 		*/
@@ -32,11 +33,9 @@ namespace stage{
 			channels.push_back(channel);
 		}
 	private:
-		/** Lista hallinnoitavista kanavista
-		*/
+		/** Lista hallinnoitavista kanavista*/
 		std::list<Theron::Address> channels;
-		/** Tapahtumakonteksteista kirjaa pitävä olio
-		*/
+		/** Tapahtumakonteksteista kirjaa pitävä olio*/
 		ContextTracker tracker;
 
 		/** Pyytää kaikkia hallinnoimiaan kanavia suorittamaan huollon
@@ -50,7 +49,6 @@ namespace stage{
 				tracker.trackedSend(msg.id, newmsg, *it, sender);
 			}
 		}
-
 		/** Käsittelee kanavilta saapuvat huollon päättymisestä ilmoittavat viestit
 		@param msg		Huollon päättymisestä kertova viesti
 		@param sender	Viestin lähettäjä
@@ -60,5 +58,4 @@ namespace stage{
 		}
 	};
 }
-
 #endif

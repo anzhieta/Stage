@@ -5,8 +5,7 @@
 
 namespace stage {
 	/** Tietue, jonka kaikki pelimoottorin viestit perivät.
-	Sisältää viestikohtaisen viestitunnuksen.
-	*/
+	Sisältää viestikohtaisen viestitunnuksen.*/
 	struct Event {
 		/** Luo uuden viestin.
 		@param originator	Viestin luojan Theron-osoite
@@ -15,18 +14,15 @@ namespace stage {
 		Event(Theron::Address originator, uint32_t msgID){
 			id = generateID(originator, msgID);
 		}
-
 		/** Luo uuden viestin.
 		@param msgID	64-bittinen tunnus, joka yksilöi viestin kaikkien pelimoottorin viestien joukossa
 		*/
 		Event(uint64_t msgID){
 			id = msgID;
 		}
-
 		/** Viestin yksilöivä tunnusluku
 		*/
 		uint64_t id;
-
 		/** Apufunktio, joka muodostaa osoitteesta ja oliokohtaisesti uniikista 32-bittisestä tunnuksesta
 		pelimoottorin sisällä yksilöllisen 64-bittisen tunnuksen
 		@param originator	Tunnuksen luojan osoite
@@ -40,10 +36,8 @@ namespace stage {
 			return id;
 		}
 	};
-
 	/** Viesti, jolla pyydetään pelioliota tai komponenttia päivittämään sisäinen tilansa uutta
-	ruudunpäivitystä vastaavaksi
-	*/
+	ruudunpäivitystä vastaavaksi*/
 	struct Update : Event {
 		/** Edellisestä ruudunpäivityksestä kulunut aika millisekunteina
 		*/
@@ -51,27 +45,20 @@ namespace stage {
 		Update(float ms, uint64_t msgID) : elapsedMS(ms), Event(msgID){}
 		Update(float ms, Theron::Address originator, uint32_t msgID) : elapsedMS(ms), Event(originator, msgID){}
 	};
-
-	/** Viesti, jolla pyydetään pelioliota tai komponenttia piirtämään itsensä ruudulle
-	*/
+	/** Viesti, jolla pyydetään pelioliota tai komponenttia piirtämään itsensä ruudulle*/
 	struct Render : Event {
 		Render(uint64_t msgID) : Event(msgID){}
 		Render(Theron::Address originator, uint32_t msgID) : Event(originator, msgID){}
 	};
-
 	/** Viesti, joka ilmaisee pyydetyn aktorilaskennan päättyneen
-	Viestin id-kenttä ilmaisee sen viestin, jonka käsittely on päättynyt
-	*/
+	Viestin id-kenttä ilmaisee sen viestin, jonka käsittely on päättynyt*/
 	struct AllDone : Event {
 		AllDone(uint64_t msgID) : Event(msgID){}
 	};
-
 	/** Viesti, joka ilmaisee, että pyydetyssä aktorilaskennassa on kohdattu virhetilanne
-	Viestin id-kenttä ilmaisee sen viestin, jonka käsittely on epäonnistunut
-	*/
+	Viestin id-kenttä ilmaisee sen viestin, jonka käsittely on epäonnistunut*/
 	struct Error : Event {
 		Error(uint64_t msgID) : Event(msgID){}
 	};
 }
-
 #endif

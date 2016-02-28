@@ -17,13 +17,11 @@ GameObject::GameObject(Theron::Framework &fw) : Theron::Actor(fw), tracker(fw, t
 	RegisterHandler(this, &GameObject::error);
 	RegisterHandler(this, &GameObject::componentFound);
 }
-
 GameObject::~GameObject(){
 	for (comp_iterator i = components.begin(); i != components.end(); i++){
 		delete *i;
 	}
 }
-
 void GameObject::addComponent(const AddComponent &msg, Theron::Address from){
 	components.push_back(msg.component);
 }
@@ -42,7 +40,6 @@ void GameObject::getComponent(const GetComponent &msg, Theron::Address from){
 		}
 	};
 }
-
 void GameObject::componentFound(const ComponentFound &msg, Theron::Address from){
 	if (tracker.contains(msg.id)){
 		Send(ComponentFound(tracker.getContext(msg.id).getOriginalID(), msg.component), tracker.getContext(msg.id).getOriginalSender());
@@ -50,7 +47,6 @@ void GameObject::componentFound(const ComponentFound &msg, Theron::Address from)
 		tracker.decrement(msg.id);
 	}
 }
-
 void GameObject::update(const Update &msg, Theron::Address from){
 	if (components.size() == 0){
 		Send(AllDone(msg.id), from);
@@ -60,8 +56,7 @@ void GameObject::update(const Update &msg, Theron::Address from){
 		for (comp_iterator i = components.begin();i != components.end(); i++){
 			tracker.trackedSend<Update>(msg.id, Update(msg.elapsedMS, id), (*i)->GetAddress(), from);
 		}
-	}
-	
+	}	
 }
 void GameObject::render(const Render &msg, Theron::Address from){
 	if (components.size() == 0){
@@ -74,11 +69,9 @@ void GameObject::render(const Render &msg, Theron::Address from){
 		}
 	}
 }
-
 void GameObject::allDone(const AllDone &msg, Theron::Address from){
 	if (tracker.contains(msg.id)) tracker.decrement(msg.id);
 }
-
 void GameObject::error(const Error &msg, Theron::Address from){
 	LOGERR(std::string("Warning: component ") + from.AsString() + " reported error during processing");
 	if (tracker.contains(msg.id)) tracker.decrement(msg.id);

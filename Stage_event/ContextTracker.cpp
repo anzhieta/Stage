@@ -13,21 +13,17 @@ EventContext& ContextTracker::addContext(uint64_t oldID, uint64_t newID, Theron:
 	context.error = context.finalize;
 	return context;
 }
-
 EventContext& ContextTracker::getContext(uint64_t id){
 	return pending[id];
 }
-
 void ContextTracker::increment(uint64_t id){
 	EventContext& context = pending[id];
 	context.responseCount++;
 }
-
 void ContextTracker::setResponseCount(uint64_t id, unsigned int count){
 	EventContext& context = pending[id];
 	context.responseCount = count;
 }
-
 void ContextTracker::decrement(uint64_t id){
 	EventContext& context = pending[id];
 	context.responseCount--;
@@ -36,16 +32,13 @@ void ContextTracker::decrement(uint64_t id){
 		pending.erase(id);
 	}
 }
-
 void ContextTracker::remove(uint64_t id){
 	pending.erase(id);
 }
-
 uint64_t ContextTracker::getNextID(){
 	lastID++;
 	return Event::generateID(owner, lastID);
 }
-
 bool ContextTracker::contains(uint64_t id){
 	if (pending.count(id)) return true;
 	return false;

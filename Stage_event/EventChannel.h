@@ -10,7 +10,6 @@
 #include "EventChannelManager.h"
 
 namespace stage {
-
 	/** Luokka, joka vastaa tapahtumaviestien lähettämisetä eteenpäin niistä kiinnostuneille aktoreille
 	Ottaa vastaan viestit:
 	<Tapahtumakanavan tyyppiparametri> (palauttaa AllDone)
@@ -21,16 +20,14 @@ namespace stage {
 	template <class MessageType>
 	class EventChannel : public Theron::Actor{
 	public:
-		/** Viesti, jolla lisätään uusi vastaaottaja kanavan vastaanottajalistaan
-		*/
+		//---Viestit---
+		/** Viesti, jolla lisätään uusi vastaaottaja kanavan vastaanottajalistaan*/
 		struct RegisterRecipient {
 			RegisterRecipient(Theron::Address &rec) : recipient(rec){}
-			/** Rekisteröitävän aktorin Theron-osoite
-			*/
+			/** Rekisteröitävän aktorin Theron-osoite*/
 			Theron::Address recipient;
 		};
-		/** Viesti, jolla poistetaan vastaanottaja vastaanottajalistasta
-		*/
+		/** Viesti, jolla poistetaan vastaanottaja vastaanottajalistasta*/
 		struct DeregisterRecipient {
 			DeregisterRecipient(Theron::Address &rec) : recipient(rec){}
 			/** Poistettavan aktorin Theron-osoite
@@ -38,8 +35,10 @@ namespace stage {
 			Theron::Address recipient;
 		};
 
+		//---Metodit---
+
 		/** Luo uuden tapahtumakanavan
-		@param fw	Tapahtumakanavaa hallinnoiva Theron::Framework
+		@param fw	Tapahtumakanavaa hallinnoiva Theron::Framework-olio
 		*/
 		EventChannel(Theron::Framework& fw) : Theron::Actor(fw), recipients(), tracker(fw, this->GetAddress()){
 			RegisterHandler(this, &EventChannel<MessageType>::forward);
@@ -49,27 +48,21 @@ namespace stage {
 			RegisterHandler(this, &EventChannel<MessageType>::error);
 			RegisterHandler(this, &EventChannel<MessageType>::channelMaintenance);
 		}
-
 		/** Hakee listan kanavaa kuuntelemaan rekisteröityneistä aktoreista
 		Säieturvallinen pelisilmukan päivitys- ja piirtovaiheissa
 		@returns	Kanavaa kuuntelemaan rekisteröityneet aktorit
 		*/
 		const std::list<Theron::Address>& getRecipients(){
 			return recipients;
-		}
-		
+		}		
 	private:
-		/** Lista aktoreista, jotka ovat rekisteröityneet kuuntelemaan kanavaa
-		*/
+		/** Lista aktoreista, jotka ovat rekisteröityneet kuuntelemaan kanavaa*/
 		std::list<Theron::Address> recipients;
-		/** Lista aktoreista, jotka lisätään kuuntelijalistaan ruudunpäivityksen lopussa
-		*/
+		/** Lista aktoreista, jotka lisätään kuuntelijalistaan ruudunpäivityksen lopussa*/
 		std::list<Theron::Address> pendingAdd;
-		/** Lista aktoreista, jotka poistetaan kuuntelijalistasta ruudunpäivityksen lopussa
-		*/
+		/** Lista aktoreista, jotka poistetaan kuuntelijalistasta ruudunpäivityksen lopussa*/
 		std::list<Theron::Address> pendingRemove;
-		/** Tapahtumakanavan konteksteista kirjaa pitävä olio
-		*/
+		/** Tapahtumakanavan konteksteista kirjaa pitävä olio*/
 		ContextTracker tracker;
 
 		/** Lähettää viestin eteenpäin kaikille tapahtumakanavaan rekisteröityneille aktoreille
@@ -121,7 +114,6 @@ namespace stage {
 			pendingRemove.clear();
 			Send(AllDone(msg.id), from);
 		}
-
 		/**Käsittelee eteenpäin lähetettyjen viestien käsittelyn päättymisestä ilmoittavat viestit
 		@param msg	Valmistumisesta ilmoittava viesti
 		@param from	Viestin lähettäjä
@@ -129,7 +121,6 @@ namespace stage {
 		void allDone(const AllDone& msg, const Theron::Address from){
 			if (tracker.contains(msg.id)) tracker.decrement(msg.id);
 		}
-
 		/**Käsittelee eteenpäin lähetettyjen viestien käsittelyssä tapahtuneesta virheestä ilmoittavat viestit
 		@param msg	Virheestä ilmoittava viesti
 		@param from	Viestin lähettäjä
@@ -140,5 +131,4 @@ namespace stage {
 		}
 	};
 }
-
 #endif

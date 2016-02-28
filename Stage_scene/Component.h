@@ -8,8 +8,7 @@
 #include <ContextTracker.h>
 #include <iostream>
 
-namespace stage{
-	
+namespace stage{	
 	/** Abstrakti pelimoottorikomponenttien yliluokka.
 	Kaikki pelimoottoreihin liitettävät komponentit perivät tämän luokan.
 	Ottaa vastaan viestit:
@@ -20,21 +19,17 @@ namespace stage{
 	*/
 	class Component : public Theron::Actor{
 	public:
-		/** Viesti, joka kertoo lähettäjänsä tyyppitunnuksen
-		*/
+		/** Viesti, joka kertoo lähettäjänsä tyyppitunnuksen*/
 		struct ComponentID : Event{
 			/** Lähettäjän tyyppitunnus
 			*/
 			unsigned int compID;
 			ComponentID(uint64_t id, int compID) : Event(id), compID(compID){}
 		};
-
-		/** Viesti, jolla pyydetään komponenttia lähettämään tyyppitunnuksensa
-		*/
+		/** Viesti, jolla pyydetään komponenttia lähettämään tyyppitunnuksensa*/
 		struct GetComponentID : Event{
 			GetComponentID(uint64_t id) : Event(id){}
 		};
-
 		/** Luo uuden pelimoottorikomponentin.
 		HUOM: luo komponenttiolio aina new:llä äläkä tuhoa sitä itse.
 		Komponenttiolio tuhotaan aina automaattisesti, kun sen omistava peliolio tuhotaan.
@@ -43,12 +38,9 @@ namespace stage{
 		*/
 		Component(Theron::Framework &fw, Theron::Address owner);
 	protected:
-		/**	Komponentin omistava peliolio
-		*/
+		/**	Komponentin omistava peliolio*/
 		Theron::Address owner;
-
-		/** Komponentin tapahtumakontekstien tilaa ylläpitävä olio
-		*/
+		/** Komponentin tapahtumakontekstien tilaa ylläpitävä olio*/
 		ContextTracker tracker;
 
 		/** Päivittää komponentin tilan.
@@ -58,7 +50,6 @@ namespace stage{
 		@param from	Pyynnön lähettäjä
 		*/
 		virtual void update(const Update &up, Theron::Address from);
-
 		/** Piirtää komponentin ruudulle.
 		Jos tämä metodi ylikirjoitetaan aliluokassa, komponentti suorittaa laskentaa
 		pelisilmukan piirtovaiheessa.
@@ -66,7 +57,6 @@ namespace stage{
 		@param from	Pyynnön lähettäjä
 		*/
 		virtual void render(const Render &rend, Theron::Address from);
-
 		/** Oletuskäsittelijä AllDone-viesteille (laskee viestiin liittyvän kontekstin
 		odotettujen vastausten määrää yhdellä)
 		Voidaan ylikirjoittaa aliluokassa.
@@ -74,7 +64,6 @@ namespace stage{
 		@param from	Viestin lähettäjä
 		*/
 		virtual void allDone(const AllDone& msg, Theron::Address from);
-
 		/** Oletuskäsittelijä Error-viesteille (kutsuu viestiin liittyvän kontekstin
 		Error-metodia ja poistaa kontekstin)
 		Voidaan ylikirjoittaa aliluokassa.
@@ -82,12 +71,10 @@ namespace stage{
 		@param from	Viestin lähettäjä
 		*/
 		virtual void error(const Error& msg, Theron::Address from);
-
 		/** Abstrakti metodi, joka palauttaa komponentin tyyppitunnuksen
 		@returns	Komponentin tyypistä riippuva tunnusluku
 		*/
 		virtual int id() = 0;
-
 	private:
 		/** Kysyy komponentilta, onko se tiettyä tyyppiä
 		@param msg	Etsityn tyypin tyyppitunnuksen sisältävä viesti
@@ -96,7 +83,6 @@ namespace stage{
 		muutoin viestillä AllDone
 		*/
 		void isType(const GameObject::GetComponent &msg, Theron::Address from);
-
 		/** Kysyy komponentilta sen tyyppitunnusta
 		@param msg	Pyyntöviesti
 		@param from	Pyynnön lähettäjä
@@ -104,5 +90,4 @@ namespace stage{
 		void getId(const GetComponentID &msg, Theron::Address from);
 	};
 }
-
 #endif
