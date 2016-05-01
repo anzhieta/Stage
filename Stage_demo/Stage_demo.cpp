@@ -71,7 +71,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					if (SPHERES < 1) SPHERES = 1;
 				}
 				catch (...){
-					std::cerr << "Error parsing configuration parameter SCALE" << std::endl;
+					std::cerr << "Error parsing configuration parameter SPHERES" << std::endl;
 					continue;
 				}
 			}
